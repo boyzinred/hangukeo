@@ -1,0 +1,1266 @@
+[
+ {
+  "id": "g1-g1",
+  "form": "은/는",
+  "name": "Topic particle",
+  "meaning": "Frames the sentence topic or contrasts it with another topic.",
+  "shape": "Consonant (batchim) ➔ 은 (학생은). Vowel ➔ 는 (학교는).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "저는 학생이에요.",
+    "en": "I am a student."
+   },
+   {
+    "ko": "선생님은 병원에 있어요.",
+    "en": "As for the teacher, he or she is at the hospital."
+   },
+   {
+    "ko": "사과는 맛있어요.",
+    "en": "As for the apple, it is delicious."
+   }
+  ]
+ },
+ {
+  "id": "g1-g2",
+  "form": "이/가",
+  "name": "Subject particle",
+  "meaning": "Highlights or identifies the grammatical subject, often as new information.",
+  "shape": "Consonant ➔ 이 (학생이). Vowel ➔ 가 (학교가).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "학생이 왔어요.",
+    "en": "The student came."
+   },
+   {
+    "ko": "학교가 커요.",
+    "en": "The school is big."
+   },
+   {
+    "ko": "친구가 도서관에 있어요.",
+    "en": "The friend is at the library."
+   }
+  ]
+ },
+ {
+  "id": "g1-g3",
+  "form": "을/를",
+  "name": "Object particle",
+  "meaning": "Marks the noun directly affected by an action verb.",
+  "shape": "Consonant ➔ 을 (책을). Vowel ➔ 를 (커피를).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "저는 책을 읽어요.",
+    "en": "I read a book."
+   },
+   {
+    "ko": "친구를 만나요.",
+    "en": "I meet a friend."
+   },
+   {
+    "ko": "밥을 먹어요.",
+    "en": "I eat a meal."
+   }
+  ]
+ },
+ {
+  "id": "g1-g4",
+  "form": "에",
+  "name": "Destination or time",
+  "meaning": "Marks a destination, a static location, or a specific time. Does not mark the place of an action.",
+  "shape": "Attaches directly to the noun regardless of batchim (학교에, 병원에).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "학교에 가요.",
+    "en": "I go to school."
+   },
+   {
+    "ko": "집에 있어요.",
+    "en": "I am at home."
+   },
+   {
+    "ko": "아침에 운동해요.",
+    "en": "I exercise in the morning."
+   }
+  ]
+ },
+ {
+  "id": "g1-g5",
+  "form": "에서",
+  "name": "Place of action",
+  "meaning": "Marks where an action occurs or the place from which movement begins.",
+  "shape": "Attaches directly to the noun regardless of batchim (학교에서, 병원에서).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "카페에서 공부해요.",
+    "en": "I study at a cafe."
+   },
+   {
+    "ko": "식당에서 밥을 먹어요.",
+    "en": "I eat a meal at a restaurant."
+   },
+   {
+    "ko": "도서관에서 책을 읽어요.",
+    "en": "I read a book at the library."
+   }
+  ]
+ },
+ {
+  "id": "g1-g6",
+  "form": "이다",
+  "name": "To be",
+  "meaning": "Copular endings attach directly to nouns to equate the subject with a noun.",
+  "shape": "Consonant ➔ 이에요 (학생이에요). Vowel ➔ 예요 (학교예요). Formal is always 입니다.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "저는 학생이에요.",
+    "en": "I am a student."
+   },
+   {
+    "ko": "여기는 학교예요.",
+    "en": "Here is the school."
+   },
+   {
+    "ko": "그분은 선생님입니다.",
+    "en": "That person is a teacher."
+   }
+  ]
+ },
+ {
+  "id": "g1-g7",
+  "form": "있다 / 없다",
+  "name": "Existence and possession",
+  "meaning": "Expresses existence, location, availability, or possession depending on context.",
+  "shape": "Particles before it follow batchim rules (이 for consonant, 가 for vowel). 있다/없다 themselves don't change based on previous words.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "시간이 있어요.",
+    "en": "I have time."
+   },
+   {
+    "ko": "사과가 없어요.",
+    "en": "There are no apples."
+   },
+   {
+    "ko": "집에 고양이가 있어요.",
+    "en": "There is a cat at home."
+   }
+  ]
+ },
+ {
+  "id": "g1-g8",
+  "form": "안 + verb",
+  "name": "Short negation",
+  "meaning": "Neutral short negation. Placed directly before a verb or adjective.",
+  "shape": "Batchim does not affect this rule. It is simply placed before the word.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "오늘 안 가요.",
+    "en": "I do not go today."
+   },
+   {
+    "ko": "밥을 안 먹어요.",
+    "en": "I do not eat the meal."
+   },
+   {
+    "ko": "날씨가 안 추워요.",
+    "en": "The weather is not cold."
+   }
+  ]
+ },
+ {
+  "id": "g1-g9",
+  "form": "못 + verb",
+  "name": "Inability",
+  "meaning": "Expresses inability caused by skill, circumstances, or external limits.",
+  "shape": "Batchim does not affect this rule. It is simply placed before the verb.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "오늘 못 가요.",
+    "en": "I cannot go today."
+   },
+   {
+    "ko": "매운 음식을 못 먹어요.",
+    "en": "I cannot eat spicy food."
+   },
+   {
+    "ko": "어제 못 잤어요.",
+    "en": "I could not sleep yesterday."
+   }
+  ]
+ },
+ {
+  "id": "g1-g10",
+  "form": "-아/어/해요",
+  "name": "Present tense",
+  "meaning": "The standard polite-casual present ending used in everyday conversation.",
+  "shape": "Depends on the final vowel of the stem, not batchim. ㅏ/ㅗ ➔ 아요, others ➔ 어요, 하 ➔ 해요.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "밥을 먹어요.",
+    "en": "I eat a meal."
+   },
+   {
+    "ko": "학교에 가요.",
+    "en": "I go to school."
+   },
+   {
+    "ko": "도서관에서 공부해요.",
+    "en": "I study at the library."
+   }
+  ]
+ },
+ {
+  "id": "g1-g11",
+  "form": "-았/었/했어요",
+  "name": "Past tense",
+  "meaning": "Marks a past action, completed event, or past state.",
+  "shape": "Depends on the final vowel of the stem, not batchim. ㅏ/ㅗ ➔ 았어요, others ➔ 었어요, 하 ➔ 했어요.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "어제 책을 읽었어요.",
+    "en": "I read a book yesterday."
+   },
+   {
+    "ko": "친구를 만났어요.",
+    "en": "I met a friend."
+   },
+   {
+    "ko": "한국어를 공부했어요.",
+    "en": "I studied Korean."
+   }
+  ]
+ },
+ {
+  "id": "g1-g12",
+  "form": "-(으)ㄹ 거예요",
+  "name": "Future tense",
+  "meaning": "Expresses a plan, intention, expectation, or prediction.",
+  "shape": "Consonant ➔ -을 거예요. Vowel ➔ -ㄹ 거예요. ㄹ-batchim ➔ -거예요.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "내일 책을 읽을 거예요.",
+    "en": "I will read a book tomorrow."
+   },
+   {
+    "ko": "학교에 갈 거예요.",
+    "en": "I will go to school."
+   },
+   {
+    "ko": "요리를 만들 거예요.",
+    "en": "I will make a dish."
+   }
+  ]
+ },
+ {
+  "id": "g1-g13",
+  "form": "-(으)세요",
+  "name": "Polite request",
+  "meaning": "A polite everyday request or instruction. Can also honor the subject.",
+  "shape": "Consonant ➔ -으세요. Vowel ➔ -세요. ㄹ-batchim ➔ -세요 (ㄹ drops).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "책을 읽으세요.",
+    "en": "Please read the book."
+   },
+   {
+    "ko": "여기에 앉으세요.",
+    "en": "Please sit here."
+   },
+   {
+    "ko": "빨리 만드세요.",
+    "en": "Please make it quickly."
+   }
+  ]
+ },
+ {
+  "id": "g1-g14",
+  "form": "-(으)십시오",
+  "name": "Formal command",
+  "meaning": "A formal directive common in notices, announcements, tests, and official instructions.",
+  "shape": "Consonant ➔ -으십시오. Vowel ➔ -십시오. ㄹ-batchim ➔ -십시오 (ㄹ drops).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "잠시 기다리십시오.",
+    "en": "Please wait a moment."
+   },
+   {
+    "ko": "여기로 가십시오.",
+    "en": "Please go this way."
+   },
+   {
+    "ko": "조용히 하십시오.",
+    "en": "Please be quiet."
+   }
+  ]
+ },
+ {
+  "id": "g1-g15",
+  "form": "-(으)ㅂ시다",
+  "name": "Let’s",
+  "meaning": "A formal or neutral suggestion meaning 'let us'.",
+  "shape": "Consonant ➔ -읍시다. Vowel ➔ -ㅂ시다. ㄹ-batchim ➔ -ㅂ시다 (ㄹ drops).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "같이 점심을 먹읍시다.",
+    "en": "Let's eat lunch together."
+   },
+   {
+    "ko": "공원에 갑시다.",
+    "en": "Let's go to the park."
+   },
+   {
+    "ko": "케이크를 만듭시다.",
+    "en": "Let's make a cake."
+   }
+  ]
+ },
+ {
+  "id": "g1-g16",
+  "form": "-(으)ㄹ까요?",
+  "name": "Shall we?",
+  "meaning": "Invites the listener’s opinion, proposes a joint action, or offers to do something.",
+  "shape": "Consonant ➔ -을까요?. Vowel ➔ -ㄹ까요?. ㄹ-batchim ➔ -까요?.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "같이 밥을 먹을까요?",
+    "en": "Shall we eat a meal together?"
+   },
+   {
+    "ko": "어디로 갈까요?",
+    "en": "Where shall we go?"
+   },
+   {
+    "ko": "제가 만들까요?",
+    "en": "Shall I make it?"
+   }
+  ]
+ },
+ {
+  "id": "g1-g17",
+  "form": "-고",
+  "name": "And / then",
+  "meaning": "Links equal actions or descriptions without necessarily showing cause.",
+  "shape": "Attaches directly to the stem regardless of batchim (먹고, 가고, 만들고).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "밥을 먹고 커피를 마셔요.",
+    "en": "I eat a meal and drink coffee."
+   },
+   {
+    "ko": "친구를 만나고 집에 가요.",
+    "en": "I meet a friend and go home."
+   },
+   {
+    "ko": "싸고 맛있어요.",
+    "en": "It is cheap and delicious."
+   }
+  ]
+ },
+ {
+  "id": "g1-g18",
+  "form": "-아서/어서",
+  "name": "Because / then",
+  "meaning": "Shows a reason or a natural sequence. Cannot be used with commands.",
+  "shape": "Depends on vowel harmony, not batchim. ㅏ/ㅗ ➔ 아서, others ➔ 어서.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "피곤해서 쉬어요.",
+    "en": "I am tired, so I rest."
+   },
+   {
+    "ko": "배가 아파서 병원에 가요.",
+    "en": "My stomach hurts, so I go to the hospital."
+   },
+   {
+    "ko": "비가 와서 집에 있어요.",
+    "en": "It rains, so I stay at home."
+   }
+  ]
+ },
+ {
+  "id": "g1-g19",
+  "form": "-지만",
+  "name": "But / although",
+  "meaning": "Introduces a contrast while acknowledging the first statement.",
+  "shape": "Attaches directly to the stem regardless of batchim (먹지만, 가지만, 만들지만).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "한국어는 어렵지만 재미있어요.",
+    "en": "Korean is difficult but interesting."
+   },
+   {
+    "ko": "비싸지만 샀어요.",
+    "en": "It was expensive, but I bought it."
+   },
+   {
+    "ko": "밥을 먹었지만 배가 고파요.",
+    "en": "I ate a meal, but I am hungry."
+   }
+  ]
+ },
+ {
+  "id": "g1-g20",
+  "form": "-(으)면",
+  "name": "If / when",
+  "meaning": "Expresses a condition or a repeated 'when' relationship.",
+  "shape": "Consonant ➔ -으면. Vowel ➔ -면. ㄹ-batchim ➔ -면.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "비가 오면 안 갈 거예요.",
+    "en": "If it rains, I will not go."
+   },
+   {
+    "ko": "돈이 많으면 집을 살 거예요.",
+    "en": "If I have a lot of money, I will buy a house."
+   },
+   {
+    "ko": "시간이 나면 연락하세요.",
+    "en": "If you get time, please contact me."
+   }
+  ]
+ },
+ {
+  "id": "g1-g21",
+  "form": "-(으)려고 하다",
+  "name": "Intention / plan",
+  "meaning": "Shows an intention, plan, or action that is about to begin.",
+  "shape": "Consonant ➔ -으려고 하다. Vowel ➔ -려고 하다. ㄹ-batchim ➔ -려고 하다.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "책을 읽으려고 해요.",
+    "en": "I plan to read a book."
+   },
+   {
+    "ko": "친구를 만나려고 해요.",
+    "en": "I intend to meet a friend."
+   },
+   {
+    "ko": "케이크를 만들려고 해요.",
+    "en": "I plan to make a cake."
+   }
+  ]
+ },
+ {
+  "id": "g1-g22",
+  "form": "-고 싶다",
+  "name": "Want to",
+  "meaning": "Expresses the speaker’s own desire to do an action.",
+  "shape": "Attaches directly to the stem regardless of batchim (먹고 싶다, 가고 싶다).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "한국에 가고 싶어요.",
+    "en": "I want to go to Korea."
+   },
+   {
+    "ko": "불고기를 먹고 싶어요.",
+    "en": "I want to eat bulgogi."
+   },
+   {
+    "ko": "영화를 보고 싶어요.",
+    "en": "I want to watch a movie."
+   }
+  ]
+ },
+ {
+  "id": "g1-g23",
+  "form": "-(으)러 가다/오다",
+  "name": "Purpose of movement",
+  "meaning": "States the purpose of movement. Used with movement verbs like 가다/오다.",
+  "shape": "Consonant ➔ -으러. Vowel ➔ -러. ㄹ-batchim ➔ -러.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "점심을 먹으러 가요.",
+    "en": "I go in order to eat lunch."
+   },
+   {
+    "ko": "운동하러 공원에 가요.",
+    "en": "I go to the park to exercise."
+   },
+   {
+    "ko": "친구를 만나러 왔어요.",
+    "en": "I came to meet a friend."
+   }
+  ]
+ },
+ {
+  "id": "g1-g24",
+  "form": "-아/어 보다",
+  "name": "Try / experience",
+  "meaning": "Means to try an action or to have experienced it.",
+  "shape": "Depends on vowel harmony, not batchim. ㅏ/ㅗ ➔ 아 보다, others ➔ 어 보다.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "이 옷을 입어 보세요.",
+    "en": "Please try putting on these clothes."
+   },
+   {
+    "ko": "제주도에 가 봤어요.",
+    "en": "I have been to Jeju Island."
+   },
+   {
+    "ko": "한국 음식을 먹어 봤어요.",
+    "en": "I have tried eating Korean food."
+   }
+  ]
+ },
+ {
+  "id": "g1-g25",
+  "form": "-아/어도 되다",
+  "name": "Permission",
+  "meaning": "Asks for or grants permission; literally means that doing the action is okay.",
+  "shape": "Depends on vowel harmony, not batchim. ㅏ/ㅗ ➔ 아도 되다, others ➔ 어도 되다.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "여기에 앉아도 돼요?",
+    "en": "May I sit here?"
+   },
+   {
+    "ko": "사진을 찍어도 돼요?",
+    "en": "May I take a photo?"
+   },
+   {
+    "ko": "지금 집에 가도 돼요.",
+    "en": "You may go home now."
+   }
+  ]
+ },
+ {
+  "id": "g1-g26",
+  "form": "-(으)면 안 되다",
+  "name": "Prohibition",
+  "meaning": "Expresses prohibition or strong advice not to do something.",
+  "shape": "Consonant ➔ -으면 안 되다. Vowel ➔ -면 안 되다. ㄹ-batchim ➔ -면 안 되다.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "여기에서 사진을 찍으면 안 돼요.",
+    "en": "You must not take photos here."
+   },
+   {
+    "ko": "지금 자면 안 돼요.",
+    "en": "You should not sleep now."
+   },
+   {
+    "ko": "떠들면 안 돼요.",
+    "en": "You must not make noise."
+   }
+  ]
+ },
+ {
+  "id": "g1-g27",
+  "form": "-(으)ㄴ 후에",
+  "name": "After",
+  "meaning": "Indicates that the first action is completed before the second action begins.",
+  "shape": "Consonant ➔ -은 후에. Vowel ➔ -ㄴ 후에. ㄹ-batchim ➔ -ㄴ 후에 (ㄹ drops).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "밥을 먹은 후에 약을 드세요.",
+    "en": "Please take medicine after eating a meal."
+   },
+   {
+    "ko": "숙제를 한 후에 게임을 해요.",
+    "en": "I play games after doing homework."
+   },
+   {
+    "ko": "손을 씻은 후에 밥을 먹어요.",
+    "en": "I eat a meal after washing my hands."
+   }
+  ]
+ },
+ {
+  "id": "g1-g28",
+  "form": "-기 전에",
+  "name": "Before",
+  "meaning": "The following action happens before the action nominalized with -기.",
+  "shape": "Attaches directly to the stem regardless of batchim (먹기 전에, 가기 전에).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "밥을 먹기 전에 손을 씻어요.",
+    "en": "I wash my hands before eating a meal."
+   },
+   {
+    "ko": "자기 전에 책을 읽어요.",
+    "en": "I read a book before sleeping."
+   },
+   {
+    "ko": "한국에 오기 전에 한국어를 공부했어요.",
+    "en": "I studied Korean before coming to Korea."
+   }
+  ]
+ },
+ {
+  "id": "g1-g29",
+  "form": "-(으)ㄹ 수 있다/없다",
+  "name": "Can / cannot",
+  "meaning": "Expresses ability or possibility to do an action.",
+  "shape": "Consonant ➔ -을 수 있다. Vowel ➔ -ㄹ 수 있다. ㄹ-batchim ➔ -수 있다.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "저는 매운 음식을 먹을 수 있어요.",
+    "en": "I can eat spicy food."
+   },
+   {
+    "ko": "수영을 할 수 있어요.",
+    "en": "I can swim."
+   },
+   {
+    "ko": "운전을 할 수 없어요.",
+    "en": "I cannot drive."
+   }
+  ]
+ },
+ {
+  "id": "g1-g30",
+  "form": "-네요",
+  "name": "Realization / admiration",
+  "meaning": "A soft spontaneous reaction to newly noticed information.",
+  "shape": "Attaches directly to the stem. If the stem ends in ㄹ-batchim, the ㄹ drops (만드네요).",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "날씨가 정말 좋네요.",
+    "en": "The weather is really nice."
+   },
+   {
+    "ko": "한국말을 정말 잘하시네요.",
+    "en": "You speak Korean really well."
+   },
+   {
+    "ko": "음식이 참 맛있네요.",
+    "en": "The food is quite delicious."
+   }
+  ]
+ },
+ {
+  "id": "g1-g31",
+  "form": "-군요 / -네요",
+  "name": "Surprise / discovery",
+  "meaning": "Shows discovery. -군요 is explicit, -네요 is softer. Verbs use -는군요.",
+  "shape": "Verbs take -는군요 (ㄹ-batchim drops). Adjectives take -군요 directly.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "이 집은 정말 크군요!",
+    "en": "This house is really big!"
+   },
+   {
+    "ko": "밥을 많이 먹는군요.",
+    "en": "You eat a lot of food, I see."
+   },
+   {
+    "ko": "시간이 참 빠르군요.",
+    "en": "Time is really fast."
+   }
+  ]
+ },
+ {
+  "id": "g1-g32",
+  "form": "-(으)ㄴ/는 것 같다",
+  "name": "I think / it seems",
+  "meaning": "Softens a guess or uncertain opinion rather than stating it as a fact.",
+  "shape": "Action verbs ➔ -는 것 같다 (ㄹ drops). Adjectives: Consonant ➔ -은 것 같다, Vowel ➔ -ㄴ 것 같다.",
+  "level": 1,
+  "examples": [
+   {
+    "ko": "비가 오는 것 같아요.",
+    "en": "I think it is raining."
+   },
+   {
+    "ko": "그 영화는 재미있는 것 같아요.",
+    "en": "I think that movie is interesting."
+   },
+   {
+    "ko": "이 옷이 조금 작은 것 같아요.",
+    "en": "I think these clothes are a bit small."
+   }
+  ]
+ },
+ {
+  "id": "g3-g1",
+  "form": "-(으)면서",
+  "name": "While / Simultaneous Actions",
+  "meaning": "Shows that two actions happen at the same time, usually by the same subject.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "음악을 들으면서 공부해.",
+    "romanization": "eum-ak-eul deul-eu-myeon-seo gong-bu-hae.",
+    "english": "I study while listening to music."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "음악을 들으면서 공부해요.",
+    "romanization": "eum-ak-eul deul-eu-myeon-seo gong-bu-hae-yo.",
+    "english": "I study while listening to music."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "음악을 들으면서 공부합니다.",
+    "romanization": "eum-ak-eul deul-eu-myeon-seo gong-bu-hap-ni-da.",
+    "english": "I study while listening to music."
+   }
+  ]
+ },
+ {
+  "id": "g3-g2",
+  "form": "-(으)려고 하다",
+  "name": "Intention / Plan",
+  "meaning": "Expresses intention, a plan, or something the speaker is about to do.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "한국에 유학을 가려고 해.",
+    "romanization": "han-guk-e yu-hak-eul ga-ryeo-go hae.",
+    "english": "I am planning to study abroad in Korea."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "한국에 유학을 가려고 해요.",
+    "romanization": "han-guk-e yu-hak-eul ga-ryeo-go hae-yo.",
+    "english": "I am planning to study abroad in Korea."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "한국에 유학을 가려고 합니다.",
+    "romanization": "han-guk-e yu-hak-eul ga-ryeo-go hap-ni-da.",
+    "english": "I am planning to study abroad in Korea."
+   }
+  ]
+ },
+ {
+  "id": "g3-g3",
+  "form": "-(으)ㄴ 후에",
+  "name": "After Doing",
+  "meaning": "Means “after doing” and emphasizes that the first action is completed before the second begins.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "밥을 먹은 후에 커피를 마셨어.",
+    "romanization": "bap-eul meok-eun hu-e keo-pi-reul ma-syeoss-eo.",
+    "english": "I drank coffee after eating."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "밥을 먹은 후에 커피를 마셨어요.",
+    "romanization": "bap-eul meok-eun hu-e keo-pi-reul ma-syeoss-eo-yo.",
+    "english": "I drank coffee after eating."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "밥을 먹은 후에 커피를 마셨습니다.",
+    "romanization": "bap-eul meok-eun hu-e keo-pi-reul ma-syeoss-seup-ni-da.",
+    "english": "I drank coffee after eating."
+   }
+  ]
+ },
+ {
+  "id": "g3-g4",
+  "form": "-기 전에",
+  "name": "Before Doing",
+  "meaning": "Means “before doing” and places one action before another.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "자기 전에 이를 닦아.",
+    "romanization": "ja-gi jeon-e i-reul dakk-a.",
+    "english": "I brush my teeth before going to bed."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "자기 전에 이를 닦아요.",
+    "romanization": "ja-gi jeon-e i-reul dakk-a-yo.",
+    "english": "I brush my teeth before going to bed."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "자기 전에 이를 닦습니다.",
+    "romanization": "ja-gi jeon-e i-reul dakk-seup-ni-da.",
+    "english": "I brush my teeth before going to bed."
+   }
+  ]
+ },
+ {
+  "id": "g3-g5",
+  "form": "-(으)니까",
+  "name": "Because / Since",
+  "meaning": "Gives a reason or cause. It is common when the second clause is a command, suggestion, or invitation.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "비가 오니까 우산 가져가.",
+    "romanization": "bi-ga o-ni-gga u-san ga-jyeo-ga.",
+    "english": "Because it is raining, take an umbrella."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "비가 오니까 우산을 가져가세요.",
+    "romanization": "bi-ga o-ni-gga u-san-eul ga-jyeo-ga-se-yo.",
+    "english": "Because it is raining, please take an umbrella."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "비가 오니까 우산을 가져가십시오.",
+    "romanization": "bi-ga o-ni-gga u-san-eul ga-jyeo-ga-sip-si-o.",
+    "english": "Because it is raining, please take an umbrella."
+   }
+  ]
+ },
+ {
+  "id": "g3-g6",
+  "form": "-아/어서",
+  "name": "Because / So / And Then",
+  "meaning": "Shows a reason or a natural sequence.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "피곤해서 일찍 잤어.",
+    "romanization": "pi-gon-hae-seo il-jjik jass-eo.",
+    "english": "I went to bed early because I was tired."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "피곤해서 일찍 잤어요.",
+    "romanization": "pi-gon-hae-seo il-jjik jass-eo-yo.",
+    "english": "I went to bed early because I was tired."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "피곤해서 일찍 잤습니다.",
+    "romanization": "pi-gon-hae-seo il-jjik jass-seup-ni-da.",
+    "english": "I went to bed early because I was tired."
+   }
+  ]
+ },
+ {
+  "id": "g3-g7",
+  "form": "-(으)ㄹ 것 같다",
+  "name": "Guess / Prediction",
+  "meaning": "Expresses a guess, impression, or prediction: “it seems,” “I think,” or “probably.”",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "내일 눈이 올 것 같아.",
+    "romanization": "nae-il nun-i ol geos gat-a.",
+    "english": "It looks like it will snow tomorrow."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "내일 눈이 올 것 같아요.",
+    "romanization": "nae-il nun-i ol geos gat-a-yo.",
+    "english": "It looks like it will snow tomorrow."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "내일 눈이 올 것 같습니다.",
+    "romanization": "nae-il nun-i ol geos gat-seup-ni-da.",
+    "english": "It looks like it will snow tomorrow."
+   }
+  ]
+ },
+ {
+  "id": "g3-g8",
+  "form": "-(으)면",
+  "name": "If / When",
+  "meaning": "Expresses a condition. Depending on context, it can mean “if” or “when.”",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "시간이 있으면 같이 가자.",
+    "romanization": "si-gan-i iss-eu-myeon gat-i ga-ja.",
+    "english": "If you have time, let’s go together."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "시간이 있으면 같이 가요.",
+    "romanization": "si-gan-i iss-eu-myeon gat-i ga-yo.",
+    "english": "If you have time, let’s go together."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "시간이 있으면 같이 갑시다.",
+    "romanization": "si-gan-i iss-eu-myeon gat-i gap-si-da.",
+    "english": "If you have time, let’s go together."
+   }
+  ]
+ },
+ {
+  "id": "g3-g9",
+  "form": "-아/어 보다",
+  "name": "Try / Experience",
+  "meaning": "Means “try doing” or “have tried/experienced doing.”",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "김치를 먹어 봤어.",
+    "romanization": "gim-chi-reul meok-eo boass-eo.",
+    "english": "I tried kimchi."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "김치를 먹어 봤어요.",
+    "romanization": "gim-chi-reul meok-eo boass-eo-yo.",
+    "english": "I tried kimchi."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "김치를 먹어 보았습니다.",
+    "romanization": "gim-chi-reul meok-eo bo-ass-seup-ni-da.",
+    "english": "I tried kimchi."
+   }
+  ]
+ },
+ {
+  "id": "g3-g10",
+  "form": "-(으)ㄹ 수 있다 / 없다",
+  "name": "Can / Cannot",
+  "meaning": "Expresses ability, possibility, or impossibility.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "한국어를 읽을 수 있어.",
+    "romanization": "han-guk-eo-reul ilk-eul su iss-eo.",
+    "english": "I can read Korean."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "한국어를 읽을 수 있어요.",
+    "romanization": "han-guk-eo-reul ilk-eul su iss-eo-yo.",
+    "english": "I can read Korean."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "한국어를 읽을 수 있습니다.",
+    "romanization": "han-guk-eo-reul ilk-eul su iss-seup-ni-da.",
+    "english": "I can read Korean."
+   }
+  ]
+ },
+ {
+  "id": "g3-g11",
+  "form": "-(으)ㄹ 때",
+  "name": "When",
+  "meaning": "Indicates the time when something happens or happened.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "어렸을 때 축구를 좋아했어.",
+    "romanization": "eo-ryeoss-eul ddae chuk-gu-reul joh-a-haess-eo.",
+    "english": "I liked soccer when I was young."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "어렸을 때 축구를 좋아했어요.",
+    "romanization": "eo-ryeoss-eul ddae chuk-gu-reul joh-a-haess-eo-yo.",
+    "english": "I liked soccer when I was young."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "어렸을 때 축구를 좋아했습니다.",
+    "romanization": "eo-ryeoss-eul ddae chuk-gu-reul joh-a-haess-seup-ni-da.",
+    "english": "I liked soccer when I was young."
+   }
+  ]
+ },
+ {
+  "id": "g3-g12",
+  "form": "-다가",
+  "name": "While Doing / Interruption",
+  "meaning": "Shows that one action was in progress and then another action occurred.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "공부하다가 잠이 들었어.",
+    "romanization": "gong-bu-ha-da-ga jam-i deul-eoss-eo.",
+    "english": "I fell asleep while studying."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "공부하다가 잠이 들었어요.",
+    "romanization": "gong-bu-ha-da-ga jam-i deul-eoss-eo-yo.",
+    "english": "I fell asleep while studying."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "공부하다가 잠이 들었습니다.",
+    "romanization": "gong-bu-ha-da-ga jam-i deul-eoss-seup-ni-da.",
+    "english": "I fell asleep while studying."
+   }
+  ]
+ },
+ {
+  "id": "g3-g13",
+  "form": "-고 있다",
+  "name": "Progressive Action",
+  "meaning": "Shows an action currently in progress: “be doing.”",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "지금 책을 읽고 있어.",
+    "romanization": "ji-geum chaek-eul ilk-go iss-eo.",
+    "english": "I am reading a book now."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "지금 책을 읽고 있어요.",
+    "romanization": "ji-geum chaek-eul ilk-go iss-eo-yo.",
+    "english": "I am reading a book now."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "지금 책을 읽고 있습니다.",
+    "romanization": "ji-geum chaek-eul ilk-go iss-seup-ni-da.",
+    "english": "I am reading a book now."
+   }
+  ]
+ },
+ {
+  "id": "g3-g14",
+  "form": "-게 되다",
+  "name": "Come To / End Up",
+  "meaning": "Expresses a change of situation, result, or something that came to happen.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "한국어를 배우게 됐어.",
+    "romanization": "han-guk-eo-reul bae-u-ge doaess-eo.",
+    "english": "I came to learn Korean."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "한국어를 배우게 됐어요.",
+    "romanization": "han-guk-eo-reul bae-u-ge doaess-eo-yo.",
+    "english": "I came to learn Korean."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "한국어를 배우게 되었습니다.",
+    "romanization": "han-guk-eo-reul bae-u-ge doi-eoss-seup-ni-da.",
+    "english": "I came to learn Korean."
+   }
+  ]
+ },
+ {
+  "id": "g3-g15",
+  "form": "-기 때문에",
+  "name": "Because / Formal Reason",
+  "meaning": "Gives a reason in a slightly more formal or written style.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "시험이 있기 때문에 일찍 잤어.",
+    "romanization": "si-heom-i iss-gi ddae-mun-e il-jjik jass-eo.",
+    "english": "I went to bed early because I had an exam."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "시험이 있기 때문에 일찍 잤어요.",
+    "romanization": "si-heom-i iss-gi ddae-mun-e il-jjik jass-eo-yo.",
+    "english": "I went to bed early because I had an exam."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "시험이 있기 때문에 일찍 잤습니다.",
+    "romanization": "si-heom-i iss-gi ddae-mun-e il-jjik jass-seup-ni-da.",
+    "english": "I went to bed early because I had an exam."
+   }
+  ]
+ },
+ {
+  "id": "g3-g16",
+  "form": "-(으)ㄴ 적이 있다",
+  "name": "Have Ever / Past Experience",
+  "meaning": "Expresses that someone has had an experience before.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "한국에 간 적이 있어.",
+    "romanization": "han-guk-e gan jeok-i iss-eo.",
+    "english": "I have been to Korea."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "한국에 간 적이 있어요.",
+    "romanization": "han-guk-e gan jeok-i iss-eo-yo.",
+    "english": "I have been to Korea."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "한국에 간 적이 있습니다.",
+    "romanization": "han-guk-e gan jeok-i iss-seup-ni-da.",
+    "english": "I have been to Korea."
+   }
+  ]
+ },
+ {
+  "id": "g3-g17",
+  "form": "-(으)러 가다 / 오다",
+  "name": "Purpose of Movement",
+  "meaning": "Expresses going or coming for the purpose of doing an action.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "친구를 만나러 갔어.",
+    "romanization": "chin-gu-reul man-na-reo gass-eo.",
+    "english": "I went to meet my friend."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "친구를 만나러 갔어요.",
+    "romanization": "chin-gu-reul man-na-reo gass-eo-yo.",
+    "english": "I went to meet my friend."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "친구를 만나러 갔습니다.",
+    "romanization": "chin-gu-reul man-na-reo gass-seup-ni-da.",
+    "english": "I went to meet my friend."
+   }
+  ]
+ },
+ {
+  "id": "g3-g18",
+  "form": "-네요",
+  "name": "Realization / Soft Surprise",
+  "meaning": "Expresses surprise, admiration, or newly realized information.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "날씨가 정말 춥네.",
+    "romanization": "nal-ssi-ga jeong-mal chup-ne.",
+    "english": "Oh, it is really cold."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "날씨가 정말 춥네요.",
+    "romanization": "nal-ssi-ga jeong-mal chup-ne-yo.",
+    "english": "Oh, it is really cold."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "날씨가 정말 춥군요.",
+    "romanization": "nal-ssi-ga jeong-mal chup-gun-yo.",
+    "english": "Oh, it is really cold."
+   }
+  ]
+ },
+ {
+  "id": "g3-g19",
+  "form": "-(으)ㄹ지도 모르다",
+  "name": "Might / May",
+  "meaning": "Expresses uncertain possibility: “might,” “may,” or “possibly.”",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "오늘 늦을지도 몰라.",
+    "romanization": "o-neul neuj-eul-ji-do mol-ra.",
+    "english": "I might be late today."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "오늘 늦을지도 몰라요.",
+    "romanization": "o-neul neuj-eul-ji-do mol-ra-yo.",
+    "english": "I might be late today."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "오늘 늦을지도 모릅니다.",
+    "romanization": "o-neul neuj-eul-ji-do mo-reup-ni-da.",
+    "english": "I might be late today."
+   }
+  ]
+ },
+ {
+  "id": "g3-g20",
+  "form": "-(으)ㄴ/는 것 같다",
+  "name": "Seems / I Think",
+  "meaning": "Expresses an opinion, guess, or impression.",
+  "shape": null,
+  "level": 3,
+  "examples": [
+   {
+    "speechLevel": "Casual intimate",
+    "korean": "그 사람이 학생인 것 같아.",
+    "romanization": "geu sa-ram-i hak-saeng-in geos gat-a.",
+    "english": "He seems to be a student."
+   },
+   {
+    "speechLevel": "Polite casual",
+    "korean": "그 사람이 학생인 것 같아요.",
+    "romanization": "geu sa-ram-i hak-saeng-in geos gat-a-yo.",
+    "english": "He seems to be a student."
+   },
+   {
+    "speechLevel": "Formal polite",
+    "korean": "그 사람이 학생인 것 같습니다.",
+    "romanization": "geu sa-ram-i hak-saeng-in geos gat-seup-ni-da.",
+    "english": "He seems to be a student."
+   }
+  ]
+ }
+]

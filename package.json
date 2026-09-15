@@ -1,0 +1,49 @@
+{
+  "name": "hangukeo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx --env-file=.env.local src/db/seed.ts",
+    "db:check": "tsx --env-file=.env.local src/db/check-progress.ts",
+    "db:studio": "drizzle-kit studio",
+    "check:quiz": "tsx src/lib/quiz.check.ts",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:status": "supabase status",
+    "db:migrate:cloud": "ENV_FILE=.env.cloud.local drizzle-kit migrate",
+    "db:check:schema": "tsx --env-file=.env.local src/db/check-schema.ts",
+    "db:check:schema:cloud": "tsx --env-file=.env.cloud.local src/db/check-schema.ts",
+    "build:corpus": "tsx scripts/build-corpus.ts",
+    "db:seed:demo": "tsx --env-file=.env.local src/db/seed-demo.ts",
+    "check:practice": "tsx --env-file=.env.local src/db/check-practice.ts"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "next": "16.3.5",
+    "pg": "^8.23.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.5",
+    "supabase": "^2.117.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.13",
+    "typescript": "^5"
+  }
+}
