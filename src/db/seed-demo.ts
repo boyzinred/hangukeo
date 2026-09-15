@@ -1,4 +1,4 @@
-import { asc, eq, inArray } from "drizzle-orm";
+import { asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "./index";
 import {
   attempts,
@@ -48,7 +48,7 @@ async function main() {
   const students = await db
     .select()
     .from(users)
-    .where(eq(users.role, "student"))
+    .where(sql`'student' = any(${users.roles})`)
     .orderBy(asc(users.displayName));
   if (students.length === 0) throw new Error("run `npm run db:seed` first");
 

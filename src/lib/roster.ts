@@ -1,17 +1,17 @@
 import "server-only";
 
-import { asc, eq, isNull, sql } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { allowlist, teamMembers, teams, users } from "@/db/schema";
+import { teamMembers, teams, users } from "@/db/schema";
 
 export type RosterRow = {
   id: string;
   displayName: string;
-  email: string;
-  role: "student" | "ta" | "teacher";
+  username: string;
+  roles: ("student" | "ta" | "teacher")[];
   teamId: string | null;
   teamName: string | null;
-  joinedAt: Date | null;
+  lastSignInAt: Date | null;
 };
 
 export type TeamRow = {
@@ -22,27 +22,21 @@ export type TeamRow = {
   memberCount: number;
 };
 
-export type PendingInvite = {
-  email: string;
-  displayName: string | null;
-  invitedAt: Date;
-};
-
 export async function roster(): Promise<RosterRow[]> {
   return db
     .select({
       id: users.id,
       displayName: users.displayName,
-      email: users.email,
-      role: users.role,
+      username: users.username,
+      roles: users.roles,
       teamId: teams.id,
       teamName: teams.name,
-      joinedAt: teamMembers.joinedAt,
+      lastSignInAt: users.lastSignInAt,
     })
     .from(users)
     .leftJoin(teamMembers, eq(teamMembers.studentId, users.id))
     .leftJoin(teams, eq(teams.id, teamMembers.teamId))
-    .orderBy(asc(users.role), asc(users.displayName));
+    .orderBy(asc(users.displayName));
 }
 
 export async function teamList(): Promise<TeamRow[]> {
@@ -56,17 +50,4 @@ export async function teamList(): Promise<TeamRow[]> {
     })
     .from(teams)
     .orderBy(asc(teams.name));
-}
-
-/** Allowlisted addresses that have not yet been claimed by a signup. */
-export async function pendingInvites(): Promise<PendingInvite[]> {
-  return db
-    .select({
-      email: allowlist.email,
-      displayName: allowlist.displayName,
-      invitedAt: allowlist.invitedAt,
-    })
-    .from(allowlist)
-    .where(isNull(allowlist.claimedAt))
-    .orderBy(asc(allowlist.invitedAt));
 }

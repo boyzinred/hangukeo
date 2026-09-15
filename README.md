@@ -14,6 +14,7 @@ npm install
 npm run db:start       # local Supabase: Postgres :54322, Studio :54323
 npm run db:migrate
 npm run db:seed        # corpus, 15 students in 3 teams, full semester plan
+npm run db:seed:auth   # sign-in accounts, one shared dev password (local only)
 npm run dev
 ```
 
@@ -23,6 +24,8 @@ Useful checks:
 npm run db:check          # semester plan, teams, and today's bank
 npm run db:check:schema   # tables and row counts (prints the host first)
 npm run check:quiz        # 22 assertions over the drill logic
+npm run check:auth        # sign-in, role gates, accounts (dev server up)
+npm run check:practice    # practice save path
 ```
 
 ## The corpus
@@ -85,6 +88,49 @@ studied number is real.
 Practice writes per-word rows to `practice_responses`; those feed studied only,
 never verified.
 
+## Auth
+
+Username and password, issued by the teacher. **No email anywhere** — not for
+sign-in, not for resets, not for verification. That removes the dependency on
+a mail provider and a purchased sending domain entirely.
+
+Supabase Auth still does the work (hashing, sessions, rate limiting), so each
+person gets a synthetic address on `hangukeo.invalid` — a domain reserved by
+RFC 2606 precisely so it can never resolve, making an accidental send
+impossible rather than merely unlikely. Students never see it; they type a
+username, which is resolved to the address server-side.
+
+**Passwords are generated, not chosen.** `src/lib/password.ts` emits
+passphrases like `amber-tiger-quiet-47`: four words from a 128-word list plus
+two digits, ~34.5 bits. That is weak against an offline attack on a stolen
+hash and strong against guessing at a login form, which is the only threat
+here. The shape matters as much as the entropy — these get read off a screen
+and typed on a phone, and `xK7#mQ2$vL` does not survive that trip.
+
+The password is shown **once**, when the account is created or reset. Supabase
+stores only a hash, so there is nowhere to read it back from; the UI says so
+rather than implying it can be recovered. Lost passwords are replaced from the
+roster, not recovered.
+
+**Where authorization actually happens.** Drizzle connects as `postgres`,
+which has `BYPASSRLS`, so database policies never constrain our queries. Every
+real check lives in `src/lib/session.ts` (`requireSession`, `requireStaff`,
+`requireTeacher`) and is called from the server component or server action
+that touches the data. `src/proxy.ts` — Next 16's renamed Middleware; a
+`middleware.ts` here would never run — only refreshes the session cookie and
+bounces signed-out visitors, which is the optimistic check the Next.js docs
+allow and nothing more.
+
+RLS is enabled on all 16 tables with no policies (`0003_rls_lockout.sql`).
+That is not our authorization layer; it locks the tables out of Supabase's
+auto-generated REST API, which is exposed on the anon key and would otherwise
+serve every student's results if anyone ever granted table privileges.
+
+`src/lib/accounts.ts` holds the service key and can do anything, so it checks
+nothing itself — the teacher-only server actions establish the caller first,
+then delegate. Creating an account rolls back the auth user if the roster row
+fails, so nobody can sign in to a session the app cannot resolve.
+
 ## Schema ownership
 
 Drizzle owns the schema. `src/db/schema.ts` is the source of truth,
@@ -97,6 +143,6 @@ because the seed opens with `TRUNCATE ... CASCADE`.
 
 ## Not built yet
 
-Auth is a stub (`src/lib/auth.ts` resolves the first seeded student). Magic-link
-signup against the allowlist, the weekly test, dashboards, and analytics are the
-next phases.
+The weekly test, the student dashboard, and the weekly report. Teacher invite,
+promote/demote and team moves are wired; the cloud database still has the
+pre-rework schema.

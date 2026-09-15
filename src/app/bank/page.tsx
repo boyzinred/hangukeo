@@ -1,4 +1,5 @@
-import { currentUser, settings, teamOf } from "@/lib/auth";
+import { settings, teamOf } from "@/lib/auth";
+import { requireStudent } from "@/lib/session";
 import { bankGrammar, bankWords, plannedWeekCount } from "@/lib/bank";
 import { weekNumberFor } from "@/lib/bank-shared";
 import { BankView } from "./bank-view";
@@ -6,7 +7,7 @@ import { BankView } from "./bank-view";
 export const metadata = { title: "Bank · hangukeo" };
 
 export default async function BankPage() {
-  const [me, s] = await Promise.all([currentUser(), settings()]);
+  const [me, s] = await Promise.all([requireStudent(), settings()]);
   const totalWeeks = await plannedWeekCount();
   const week = weekNumberFor(new Date(), s.termStart, totalWeeks);
 

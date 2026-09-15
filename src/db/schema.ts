@@ -37,30 +37,39 @@ export const attemptStateEnum = pgEnum("attempt_state", [
 
 // --- people -----------------------------------------------------------
 //
-// One cohort, so role is global rather than per-class. A TA is a promoted
-// student; promotion is a column update, not a new row anywhere.
+// One cohort, so roles are global rather than per-class. Roles are additive:
+// a student who is also a TA holds both, keeps their weekly assignment and
+// their team, and gains the review screens.
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
+  /** Supabase auth.users id. Set when the teacher creates the account. */
+  authId: uuid("auth_id").unique(),
+  /** What the student types to sign in. */
+  username: text("username").notNull().unique(),
+  /**
+   * Synthetic, on a reserved .invalid domain — Supabase Auth needs an
+   * email-shaped identifier, but nothing is ever sent here.
+   */
   email: text("email").notNull().unique(),
   displayName: text("display_name").notNull(),
   birthday: date("birthday"),
-  role: roleEnum("role").notNull().default("student"),
+  /**
+   * A person can hold several roles at once — a strong student acting as TA
+   * keeps their own weekly assignment and their team while also reviewing
+   * others. A single column could not express that, which is why this is an
+   * array rather than one enum.
+   */
+  roles: roleEnum("roles").array().notNull().default(["student"]),
+  /** Null until the account has been used, which is how the teacher sees
+   * who has never signed in. */
+  lastSignInAt: timestamp("last_sign_in_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-/**
- * Signup is invite-only: a magic link is issued only to an address the teacher
- * has listed here. Without this, a publicly reachable deployment lets anyone
- * create an account.
- */
-export const allowlist = pgTable("allowlist", {
-  email: text("email").primaryKey(),
-  displayName: text("display_name"),
-  invitedAt: timestamp("invited_at", { withTimezone: true }).notNull().defaultNow(),
-  claimedAt: timestamp("claimed_at", { withTimezone: true }),
-  claimedBy: uuid("claimed_by").references(() => users.id, { onDelete: "set null" }),
-});
+// There is no allowlist table any more. Accounts exist only because the
+// teacher created them, so account creation *is* the gate — an allowlist
+// would be a second list saying the same thing.
 
 export const teams = pgTable("teams", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -209,7 +218,9 @@ export const tests = pgTable(
     spec: jsonb("spec"),
     opensAt: timestamp("opens_at", { withTimezone: true }),
     closesAt: timestamp("closes_at", { withTimezone: true }),
-    approvedBy: uuid("approved_by").references(() => users.id),
+    // set null, not the default no-action: a teacher who once approved a test
+    // must still be deletable. This records who approved, not ownership.
+    approvedBy: uuid("approved_by").references(() => users.id, { onDelete: "set null" }),
     approvedAt: timestamp("approved_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -254,7 +265,7 @@ export const attempts = pgTable(
      * A retake is automatic when the previous attempt was never submitted;
      * anything else needs a TA to grant it, recorded here.
      */
-    retakeGrantedBy: uuid("retake_granted_by").references(() => users.id),
+    retakeGrantedBy: uuid("retake_granted_by").references(() => users.id, { onDelete: "set null" }),
     retakeReason: text("retake_reason"),
   },
   (t) => [

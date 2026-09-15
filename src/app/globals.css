@@ -970,3 +970,300 @@ table.roster td {
   margin: -16px 0 24px;
   opacity: 0.8;
 }
+
+.header-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px 0 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.header-actions form {
+  display: contents;
+}
+.login-panel {
+  max-width: 460px;
+}
+
+/* Shown once after creating an account or resetting a password. */
+.credential {
+  margin: 0;
+  padding: 18px 22px;
+  background: var(--secondary-soft);
+  border-left: 8px solid var(--secondary);
+  color: #fff;
+}
+html[data-theme="dark"] .credential {
+  color: var(--surface-text);
+}
+.credential-head {
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+.credential-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0 0 12px;
+}
+.credential-grid dt {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  align-self: center;
+}
+.credential-grid dd {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.credential-password {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.02em;
+  user-select: all;
+}
+.never {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* Destructive actions. Red is reserved for these — the accent colour is used
+   for scores elsewhere, so danger gets its own token rather than sharing. */
+.btn.danger {
+  background: #b3261e;
+  color: #fff;
+}
+.btn.danger:hover:not(:disabled) {
+  background: #8c1d18;
+}
+html[data-theme="dark"] .btn.danger {
+  background: #f2b8b5;
+  color: #601410;
+}
+
+.danger-panel {
+  padding: 18px 22px;
+  background: #fdeceb;
+  border-left: 8px solid #b3261e;
+  color: #410e0b;
+}
+html[data-theme="dark"] .danger-panel {
+  background: #2d1512;
+  border-left-color: #f2b8b5;
+  color: #f9dedc;
+}
+.danger-panel p {
+  margin: 0 0 8px;
+  max-width: 68ch;
+}
+.danger-head {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+.danger-panel code {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+}
+html[data-theme="dark"] .danger-panel code {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* The expanded panel belongs to the row above it, so the row is marked and
+   the panel cell loses its own padding. */
+tr.row-open > td {
+  border-bottom: none;
+  font-weight: 600;
+}
+tr.panel-row > td {
+  padding: 0;
+  border-top: none;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  text-decoration: underline;
+  font-weight: 700;
+  color: inherit;
+}
+
+/* ------------------------------------------------- form field alignment */
+
+/*
+ * Field notes are taken out of flow. In a grid of fields, a note under one of
+ * them made that cell taller and pushed its input out of line with the others;
+ * absolute positioning means a note can never affect alignment, whichever
+ * field happens to carry one.
+ */
+.invite-grid {
+  align-items: start;
+  row-gap: 34px;
+}
+.invite-grid .field {
+  position: relative;
+}
+.invite-grid .field-note {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+/* fieldset needs the reset a div gets for free. */
+fieldset.field {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+fieldset.field > legend {
+  padding: 0;
+  margin-bottom: 6px;
+}
+
+/* A derived value that looks like the inputs beside it but is not editable. */
+.readonly-value {
+  display: flex;
+  align-items: center;
+  background: var(--muted-strong);
+  cursor: default;
+  font-weight: 600;
+}
+.readonly-value .placeholder {
+  opacity: 0.55;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.check-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  min-height: 56px;
+}
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.check:has(input:checked) {
+  background: var(--light-background);
+  border-color: var(--light-background);
+  color: #fff;
+}
+html[data-theme="dark"] .check:has(input:checked) {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #0f172a;
+}
+.check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--secondary);
+}
+
+/* Several role pills sit together in one cell. */
+.pill-stack {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.inline-panel {
+  padding: 18px 22px;
+  background: var(--surface-muted);
+  border-left: 8px solid var(--primary);
+}
+.inline-panel p {
+  margin: 0 0 6px;
+  max-width: 68ch;
+}
+.inline-panel-head {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+/* ------------------------------------------------ inline panel dismissal */
+
+.inline-panel-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.inline-panel-bar .inline-panel-head {
+  margin: 0;
+}
+
+.panel-close {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  opacity: 0.7;
+}
+.panel-close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.08);
+}
+html[data-theme="dark"] .panel-close:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* One panel shell, three tones — so the close control sits in the same place
+   whichever panel is open. */
+.inline-panel.tone-good {
+  background: var(--secondary-soft);
+  border-left-color: var(--secondary);
+  color: #fff;
+}
+html[data-theme="dark"] .inline-panel.tone-good {
+  color: var(--surface-text);
+}
+.inline-panel.tone-bad {
+  background: #fdeceb;
+  border-left-color: #b3261e;
+  color: #410e0b;
+}
+html[data-theme="dark"] .inline-panel.tone-bad {
+  background: #2d1512;
+  border-left-color: #f2b8b5;
+  color: #f9dedc;
+}
+.inline-panel code {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+}
+html[data-theme="dark"] .inline-panel code {
+  background: rgba(255, 255, 255, 0.12);
+}
+.inline-panel .credential-grid {
+  margin-top: 10px;
+}

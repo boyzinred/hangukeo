@@ -15,6 +15,41 @@
       "when": 1789490343338,
       "tag": "0001_ambitious_venom",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789495694944,
+      "tag": "0002_smart_morlun",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789495728751,
+      "tag": "0003_rls_lockout",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789497121446,
+      "tag": "0004_chief_korath",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789497949405,
+      "tag": "0005_amused_stellaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789497964584,
+      "tag": "0006_unique_phil_sheldon",
+      "breakpoints": true
     }
   ]
 }

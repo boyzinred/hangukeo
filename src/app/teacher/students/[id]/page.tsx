@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { settings } from "@/lib/auth";
+import { requireStaff } from "@/lib/session";
 import { plannedWeekCount } from "@/lib/bank";
 import { POS_LABELS, weekNumberFor } from "@/lib/bank-shared";
 import { cohortProgress, paceTarget, studentDetail } from "@/lib/progress";
@@ -8,6 +9,7 @@ import { cohortProgress, paceTarget, studentDetail } from "@/lib/progress";
 export default async function StudentDetail({
   params,
 }: PageProps<"/teacher/students/[id]">) {
+  await requireStaff();
   const { id } = await params;
   const detail = await studentDetail(id);
   if (!detail) notFound();

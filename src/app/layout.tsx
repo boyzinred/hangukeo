@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { UserChip } from "@/components/user-chip";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -42,15 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               hangukeo · Korean Language Resources
             </Link>
             <nav className="header-actions">
-              <Link className="header-link" href="/bank">
-                Bank
-              </Link>
-              <Link className="header-link" href="/practice">
-                Practice
-              </Link>
-              <Link className="header-link" href="/teacher/home">
-                Teacher
-              </Link>
+              <UserChip />
               <ThemeToggle />
             </nav>
           </div>

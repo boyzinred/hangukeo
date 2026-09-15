@@ -2,7 +2,7 @@
  * Prints the seeded semester plan and what a student's bank looks like today.
  * Run with `npm run db:check`.
  */
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, sql } from "drizzle-orm";
 import { db } from "./index";
 import {
   classSettings,
@@ -95,7 +95,7 @@ async function main() {
   const [student] = await db
     .select()
     .from(users)
-    .where(eq(users.role, "student"))
+    .where(sql`'student' = any(${users.roles})`)
     .orderBy(users.createdAt)
     .limit(1);
   console.log(`\n(viewing as ${student.displayName})`);

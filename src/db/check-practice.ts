@@ -4,9 +4,8 @@
  */
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "./index";
-import { corpusVocab, practiceResponses, practiceRuns } from "./schema";
-import { savePracticeRun } from "../app/practice/actions";
-import { currentUser } from "../lib/auth";
+import { corpusVocab, practiceResponses, practiceRuns, users } from "./schema";
+import { deletePracticeRun, recordPracticeRun } from "../lib/practice";
 
 async function studiedCount(studentId: string) {
   const [row] = await db
@@ -23,10 +22,15 @@ async function studiedCount(studentId: string) {
 }
 
 async function main() {
-  const me = await currentUser();
+  const [me] = await db
+    .select()
+    .from(users)
+    .where(sql`'student' = any(${users.roles})`)
+    .orderBy(users.createdAt)
+    .limit(1);
   console.log(`acting as ${me.displayName}`);
 
-  const before = await studiedCount(me.userId);
+  const before = await studiedCount(me.id);
 
   // Three words the student has never practised, so the delta is unambiguous.
   const fresh = await db
@@ -35,12 +39,12 @@ async function main() {
     .where(
       sql`${corpusVocab.id} not in (
         select coalesce(vocab_id, '') from ${practiceResponses}
-        where student_id = ${me.userId} and vocab_id is not null
+        where student_id = ${me.id} and vocab_id is not null
       )`,
     )
     .limit(3);
 
-  const res = await savePracticeRun({
+  const res = await recordPracticeRun(me.id, {
     kind: "words",
     direction: "ko_to_en",
     scope: { check: true },
@@ -51,11 +55,11 @@ async function main() {
     ],
   });
 
-  const after = await studiedCount(me.userId);
+  const after = await studiedCount(me.id);
   const [run] = await db
     .select()
     .from(practiceRuns)
-    .where(eq(practiceRuns.studentId, me.userId))
+    .where(eq(practiceRuns.studentId, me.id))
     .orderBy(sql`ran_at desc`)
     .limit(1);
 
@@ -73,8 +77,7 @@ async function main() {
   // and an outright miss must not.
   console.log(ok ? "\nPASS" : "\nFAIL — expected +1 studied, firstTryCorrect=1");
 
-  await db.delete(practiceResponses).where(eq(practiceResponses.runId, run.id));
-  await db.delete(practiceRuns).where(eq(practiceRuns.id, run.id));
+  await deletePracticeRun(run.id);
   console.log("cleaned up");
 
   process.exit(ok ? 0 : 1);

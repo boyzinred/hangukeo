@@ -18,6 +18,14 @@ import {
 } from "@/db/schema";
 import { MASTERY_CORRECT_TESTS } from "./mastery";
 
+/*
+ * Explicitly qualified. A bare ${users.id} renders unqualified when only one
+ * table is in scope, and Postgres then binds it to the subquery table instead
+ * of the outer row — silently returning zero. These queries happen to join, so
+ * drizzle qualifies today; this makes the correctness deliberate.
+ */
+const USER_ID = sql.raw('"users"."id"');
+
 /**
  * Cohort and per-student progress for the teacher screens.
  *
@@ -76,33 +84,33 @@ export async function cohortProgress(): Promise<StudentProgress[]> {
       displayName: users.displayName,
       teamName: teams.name,
       taName: sql<string | null>`(select display_name from ${users} u2 where u2.id = ${teams.taId})`,
-      vocabVerified: sql<number>`(select count(*) from (${masteredVocab}) m where m.student_id = ${users.id})::int`,
+      vocabVerified: sql<number>`(select count(*) from (${masteredVocab}) m where m.student_id = ${USER_ID})::int`,
       /* Studied = got it right first time in practice at least once. */
       vocabStudied: sql<number>`(
         select count(distinct pr.vocab_id) from ${practiceResponses} pr
-        where pr.student_id = ${users.id}
+        where pr.student_id = ${USER_ID}
           and pr.vocab_id is not null
           and pr.first_try and pr.is_correct
       )::int`,
       grammarStudied: sql<number>`(
         select count(distinct pr.grammar_id) from ${practiceResponses} pr
-        where pr.student_id = ${users.id}
+        where pr.student_id = ${USER_ID}
           and pr.grammar_id is not null
           and pr.first_try and pr.is_correct
       )::int`,
       practiceRuns: sql<number>`(
-        select count(*) from ${practiceRunsTable} p where p.student_id = ${users.id}
+        select count(*) from ${practiceRunsTable} p where p.student_id = ${USER_ID}
       )::int`,
       vocabSeen: sql<number>`(
         select count(distinct r.vocab_id) from ${responses} r
-        where r.student_id = ${users.id} and r.vocab_id is not null
+        where r.student_id = ${USER_ID} and r.vocab_id is not null
       )::int`,
       grammarVerified: sql<number>`(
         select count(*) from (
           select r.grammar_id
           from ${responses} r
           join ${questions} q on q.id = r.question_id
-          where r.student_id = ${users.id} and r.grammar_id is not null and r.needs_review = false
+          where r.student_id = ${USER_ID} and r.grammar_id is not null and r.needs_review = false
           group by r.grammar_id
           having count(distinct case when r.is_correct then q.test_id end) >= ${MASTERY_CORRECT_TESTS}
              and coalesce((array_agg(r.is_correct order by r.answered_at desc))[1], false)
@@ -110,23 +118,23 @@ export async function cohortProgress(): Promise<StudentProgress[]> {
       )::int`,
       testsTaken: sql<number>`(
         select count(*) from ${attempts} a
-        where a.student_id = ${users.id} and a.state = 'submitted'
+        where a.student_id = ${USER_ID} and a.state = 'submitted'
       )::int`,
       lastScore: sql<number | null>`(
         select a.score from ${attempts} a
-        where a.student_id = ${users.id} and a.state = 'submitted'
+        where a.student_id = ${USER_ID} and a.state = 'submitted'
         order by a.submitted_at desc limit 1
       )`,
       lastMaxScore: sql<number | null>`(
         select a.max_score from ${attempts} a
-        where a.student_id = ${users.id} and a.state = 'submitted'
+        where a.student_id = ${USER_ID} and a.state = 'submitted'
         order by a.submitted_at desc limit 1
       )`,
       lastTestWeek: sql<number | null>`(
         select wp.week_number from ${attempts} a
         join ${tests} t on t.id = a.test_id
         join ${weekPlans} wp on wp.id = t.week_plan_id
-        where a.student_id = ${users.id} and a.state = 'submitted'
+        where a.student_id = ${USER_ID} and a.state = 'submitted'
         order by a.submitted_at desc limit 1
       )`,
       /*
@@ -138,7 +146,7 @@ export async function cohortProgress(): Promise<StudentProgress[]> {
         select round(avg(case when r.is_correct then 1.0 else 0.0 end) * 100)::int
         from ${responses} r
         join ${questions} q on q.id = r.question_id
-        where r.student_id = ${users.id}
+        where r.student_id = ${USER_ID}
           and r.vocab_id is not null
           and exists (
             select 1 from ${responses} r2
@@ -153,7 +161,7 @@ export async function cohortProgress(): Promise<StudentProgress[]> {
     .from(users)
     .leftJoin(teamMembers, eq(teamMembers.studentId, users.id))
     .leftJoin(teams, eq(teams.id, teamMembers.teamId))
-    .where(eq(users.role, "student"))
+    .where(sql`'student' = any(${users.roles})`)
     .orderBy(asc(users.displayName));
 
   return rows;

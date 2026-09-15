@@ -3,7 +3,6 @@ import path from "node:path";
 import { sql } from "drizzle-orm";
 import { db } from "./index";
 import {
-  allowlist,
   classSettings,
   corpusGrammar,
   corpusVocab,
@@ -15,6 +14,7 @@ import {
   weekPlans,
 } from "./schema";
 import { buildSemesterPlan } from "../lib/plan";
+import { syntheticEmail } from "../lib/password";
 
 /**
  * Seeds the corpus, the cohort (15 students in 3 teams), and the full
@@ -52,10 +52,10 @@ async function main() {
 
   await db.execute(sql`
     truncate table
-      ${weeklyReportsRef}, ${practiceRunsRef}, ${responsesRef}, ${attemptsRef},
-      ${questionsRef}, ${testsRef}, ${weekPlanVocab}, ${weekPlanGrammar},
-      ${weekPlans}, ${corpusVocab}, ${corpusGrammar}, ${teamMembers},
-      ${teams}, ${allowlist}, ${users}, ${classSettings}
+      ${weeklyReportsRef}, ${practiceResponsesRef}, ${practiceRunsRef},
+      ${responsesRef}, ${attemptsRef}, ${questionsRef}, ${testsRef},
+      ${weekPlanVocab}, ${weekPlanGrammar}, ${weekPlans}, ${corpusVocab},
+      ${corpusGrammar}, ${teamMembers}, ${teams}, ${users}, ${classSettings}
     restart identity cascade
   `);
 
@@ -107,46 +107,33 @@ async function main() {
     .returning();
 
   // --- people ---------------------------------------------------------
-  const [teacher] = await db
+  //
+  // Roster rows only. Sign-in accounts need the Supabase admin API, so they
+  // are created by `npm run db:seed:auth`, which is a separate step precisely
+  // because it needs the service key and this script does not.
+  const row = (name: string, roles: ("student" | "ta" | "teacher")[], i = 0) => ({
+    username: name.toLowerCase().replace(/[^a-z0-9]/g, ""),
+    email: syntheticEmail(name.toLowerCase().replace(/[^a-z0-9]/g, "")),
+    displayName: name,
+    roles,
+    ...(roles.includes("student")
+      ? { birthday: `200${5 + (i % 4)}-0${(i % 9) + 1}-1${i % 9}` }
+      : {}),
+  });
+
+  await db
     .insert(users)
-    .values({
-      email: "teacher@hangukeo.local",
-      displayName: "Kim Seonsaengnim",
-      role: "teacher",
-    })
-    .returning();
+    .values({ ...row("Seonsaengnim", ["teacher"]), displayName: "Kim Seonsaengnim" });
 
   const tas = await db
     .insert(users)
-    .values(
-      TA_NAMES.map((n) => ({
-        email: `${n.toLowerCase()}@hangukeo.local`,
-        displayName: n,
-        role: "ta" as const,
-      })),
-    )
+    .values(TA_NAMES.map((n) => row(n, ["ta"])))
     .returning();
 
   const students = await db
     .insert(users)
-    .values(
-      STUDENT_NAMES.map((n, i) => ({
-        email: `${n.toLowerCase()}@hangukeo.local`,
-        displayName: n,
-        role: "student" as const,
-        birthday: `200${5 + (i % 4)}-0${(i % 9) + 1}-1${i % 9}`,
-      })),
-    )
+    .values(STUDENT_NAMES.map((n, i) => row(n, ["student"], i)))
     .returning();
-
-  await db.insert(allowlist).values(
-    [teacher, ...tas, ...students].map((u) => ({
-      email: u.email,
-      displayName: u.displayName,
-      claimedAt: new Date(),
-      claimedBy: u.id,
-    })),
-  );
 
   // Three teams of five, each with one TA.
   const teamRows = await db
@@ -221,6 +208,7 @@ async function main() {
 // Tables truncated but not otherwise written here.
 import {
   attempts as attemptsRef,
+  practiceResponses as practiceResponsesRef,
   practiceRuns as practiceRunsRef,
   questions as questionsRef,
   responses as responsesRef,

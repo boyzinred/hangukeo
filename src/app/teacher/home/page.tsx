@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { currentTeacher, settings } from "@/lib/auth";
+import { settings } from "@/lib/auth";
+import { requireStaff } from "@/lib/session";
 import { plannedWeekCount } from "@/lib/bank";
 import { weekNumberFor } from "@/lib/bank-shared";
 import { cohortProgress, paceTarget, type StudentProgress } from "@/lib/progress";
@@ -7,7 +8,7 @@ import { cohortProgress, paceTarget, type StudentProgress } from "@/lib/progress
 export const metadata = { title: "Teacher · hangukeo" };
 
 export default async function TeacherHome() {
-  const [me, s] = await Promise.all([currentTeacher(), settings()]);
+  const [me, s] = await Promise.all([requireStaff(), settings()]);
   const totalWeeks = await plannedWeekCount();
   const week = weekNumberFor(new Date(), s.termStart, totalWeeks);
   const students = await cohortProgress();
