@@ -88,7 +88,7 @@ function NextUp({ d, week }: { d: StudentDashboard; week: number }) {
             No test is open. Practice is the useful thing to do, and it costs
             nothing to be wrong at.
           </p>
-          <Link className="btn primary" href="/vocabulary">
+          <Link className="btn primary" href="/bank">
             Practise week {week}
           </Link>
         </>
@@ -99,7 +99,7 @@ function NextUp({ d, week }: { d: StudentDashboard; week: number }) {
             This week&rsquo;s words are all studied and no test is open. Earlier
             weeks are the ones that fade.
           </p>
-          <Link className="btn secondary" href="/vocabulary">
+          <Link className="btn secondary" href="/bank">
             Review earlier weeks
           </Link>
         </>
@@ -149,7 +149,7 @@ function ThisWeek({ d }: { d: StudentDashboard }) {
           );
         })}
       </ul>
-      <Link className="btn secondary compact" href="/vocabulary">
+      <Link className="btn secondary compact" href="/bank">
         Open vocabulary
       </Link>
     </article>

@@ -33,7 +33,7 @@ export async function UserIdentity() {
 }
 
 /**
- * Navigation, by role. Home, Vocabulary and Tests are a student's own screens,
+ * Navigation, by role. Home, Bank and Tests are a student's own screens,
  * so a teacher who is not also a student has no use for them and does not see
  * them — they are still reachable by URL for previewing what a student gets.
  *
@@ -64,8 +64,8 @@ export async function UserNav() {
           <Link className="header-link" href="/">
             Home
           </Link>
-          <Link className="header-link" href="/vocabulary">
-            Vocabulary
+          <Link className="header-link" href="/bank">
+            Bank
           </Link>
           <Link className="header-link" href="/test">
             Tests

@@ -2284,3 +2284,15 @@ td:hover > .covered {
   font-size: 0.85rem;
   resize: vertical;
 }
+
+/* Grammar cards inside a week section: the section already carries the
+   heading and the border, so the cards sit plainly inside it. */
+.grammar-list {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-top: 1px solid var(--border);
+}
+.grammar-list .grammar-card {
+  margin: 0;
+}

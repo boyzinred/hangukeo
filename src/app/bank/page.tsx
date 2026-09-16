@@ -3,9 +3,9 @@ import { requireStudent } from "@/lib/session";
 import { bankGrammar, bankWords, plannedWeekCount } from "@/lib/bank";
 import { weekNumberFor } from "@/lib/bank-shared";
 import { studiedIds } from "@/lib/student";
-import { VocabularyView } from "./vocabulary-view";
+import { BankView } from "./bank-view";
 
-export const metadata = { title: "Vocabulary · hangukeo" };
+export const metadata = { title: "Bank · hangukeo" };
 
 /**
  * Everything assigned so far, and the drill over it, on one page.
@@ -15,7 +15,7 @@ export const metadata = { title: "Vocabulary · hangukeo" };
  * between. They are the same activity: you look at a day's words, then you
  * drill that day.
  */
-export default async function VocabularyPage() {
+export default async function BankPage() {
   const [me, s] = await Promise.all([requireStudent(), settings()]);
   const totalWeeks = await plannedWeekCount();
   const week = weekNumberFor(new Date(), s.termStart, totalWeeks);
@@ -34,16 +34,16 @@ export default async function VocabularyPage() {
           Week {week} of {totalWeeks}
           {team ? ` · ${team.teamName}` : ""}
         </span>
-        <h1>Vocabulary</h1>
+        <h1>Vocabulary and grammar</h1>
         <p>
           Every word and pattern assigned so far. Practise a study day, a part
-          of speech, or the lot — nothing here is recorded toward your semester
-          total, so it is the safe place to be wrong.
+          of speech, a week of grammar, or the lot — nothing here is recorded
+          toward your semester total, so it is the safe place to be wrong.
         </p>
       </section>
 
       <div className="section-body">
-        <VocabularyView
+        <BankView
           words={words}
           grammar={grammar}
           currentWeek={week}

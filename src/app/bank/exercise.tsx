@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { BankWord } from "@/lib/bank-shared";
 import type { Mode, QuizWord } from "@/lib/quiz";
 import { Drill, type DrillOptions } from "./drill";
 
@@ -10,11 +9,12 @@ export type PickerOption = { key: string; label: string; count: number };
 /**
  * Setting up a run before starting it.
  *
- * The bank above decides which picker this shows — study days when the list is
- * grouped by day, parts of speech when it is grouped by part of speech. Only
- * one exists at a time on purpose: a selection that mixed "day 3" with
- * "particles" would be two overlapping sets, and the count would stop meaning
- * anything the student could reason about.
+ * The list above decides which picker this shows — study days when words are
+ * grouped by day, parts of speech when they are grouped by part of speech, and
+ * weeks for grammar, which has only the one useful grouping. Only one exists at
+ * a time on purpose: a selection that mixed "day 3" with "particles" would be
+ * two overlapping sets, and the count would stop meaning anything the student
+ * could reason about.
  *
  * Whatever they ticked in the list arrives here already ticked, so the common
  * case is pressing Start.
@@ -26,7 +26,12 @@ export function Exercise({
   options,
   selected,
   onSelectedChange,
-  wordsFor,
+  itemsFor,
+  kind = "words",
+  /** What the two languages are called for this kind of item. */
+  koreanLabel = "Korean",
+  englishLabel = "English",
+  unit = "word",
 }: {
   title: string;
   kicker: string;
@@ -34,7 +39,11 @@ export function Exercise({
   options: PickerOption[];
   selected: Set<string>;
   onSelectedChange: (next: Set<string>) => void;
-  wordsFor: (keys: Set<string>) => BankWord[];
+  itemsFor: (keys: Set<string>) => QuizWord[];
+  kind?: "words" | "grammar";
+  koreanLabel?: string;
+  englishLabel?: string;
+  unit?: string;
 }) {
   // English → Korean by default: recall is the direction that fails first, and
   // the one the writing paper needs.
@@ -49,7 +58,7 @@ export function Exercise({
     label: string;
   } | null>(null);
 
-  const chosen = useMemo(() => wordsFor(selected), [wordsFor, selected]);
+  const chosen = useMemo(() => itemsFor(selected), [itemsFor, selected]);
   const willAsk = limit > 0 ? Math.min(limit, chosen.length) : chosen.length;
 
   function toggle(key: string) {
@@ -71,6 +80,7 @@ export function Exercise({
         pool={running.pool}
         options={running.options}
         label={running.label}
+        kind={kind}
         onExit={() => setRunning(null)}
       />
     );
@@ -122,27 +132,27 @@ export function Exercise({
 
       <div className="exercise-grid">
         <label>
-          Question language
+          Question shows
           <select
             value={questionMode}
             onChange={(e) => setDirection(e.target.value as Mode)}
           >
-            <option value="english">English</option>
-            <option value="korean">Korean</option>
+            <option value="english">{englishLabel}</option>
+            <option value="korean">{koreanLabel}</option>
           </select>
         </label>
 
         <label>
-          Answer language
+          You answer with
           <select value={answerMode} disabled>
-            <option value="korean">Korean</option>
-            <option value="english">English</option>
+            <option value="korean">{koreanLabel}</option>
+            <option value="english">{englishLabel}</option>
           </select>
           <small>Always the other one</small>
         </label>
 
         <label>
-          Word limit
+          Limit
           <input
             type="number"
             min={0}
@@ -150,7 +160,7 @@ export function Exercise({
             value={limit}
             onChange={(e) => setLimit(Math.max(0, Number(e.target.value) || 0))}
           />
-          <small>0 keeps every word selected</small>
+          <small>0 keeps everything selected</small>
         </label>
 
         <label>
@@ -172,7 +182,7 @@ export function Exercise({
             onChange={(e) => setRetryUntilRight(e.target.checked)}
           />
           <span>
-            Retry a word until it is right
+            Retry until it is right
             <small>The answer stays hidden until the second miss</small>
           </span>
         </label>
@@ -182,7 +192,7 @@ export function Exercise({
         <span className={`menu-summary ${willAsk === 0 ? "is-empty" : ""}`}>
           {willAsk === 0
             ? "Nothing selected"
-            : `${chosen.length} word${chosen.length === 1 ? "" : "s"} selected · ${willAsk} question${willAsk === 1 ? "" : "s"}${
+            : `${chosen.length} ${unit}${chosen.length === 1 ? "" : "s"} selected · ${willAsk} question${willAsk === 1 ? "" : "s"}${
                 limit > 0 && chosen.length > limit ? ` sampled from ${chosen.length}` : ""
               }`}
         </span>
@@ -192,14 +202,9 @@ export function Exercise({
           disabled={willAsk === 0}
           onClick={() =>
             setRunning({
-              pool: chosen.map((w) => ({
-                id: w.id,
-                korean: w.korean,
-                english: w.english,
-                acceptedAnswers: w.acceptedAnswers,
-              })),
+              pool: chosen,
               options: { questionMode, answerMode, limit, timerMinutes, retryUntilRight },
-              label: `${willAsk} ${willAsk === 1 ? "word" : "words"} · ${title}`,
+              label: `${willAsk} ${willAsk === 1 ? unit : `${unit}s`} · ${title}`,
             })
           }
         >

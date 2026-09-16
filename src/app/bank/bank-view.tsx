@@ -7,6 +7,7 @@ import {
   type BankGrammar,
   type BankWord,
 } from "@/lib/bank-shared";
+import type { QuizWord } from "@/lib/quiz";
 import { Exercise, type PickerOption } from "./exercise";
 
 type GroupBy = "day" | "pos";
@@ -28,7 +29,7 @@ type Section = {
   words: BankWord[];
 };
 
-export function VocabularyView({
+export function BankView({
   words,
   grammar,
   currentWeek,
@@ -70,6 +71,16 @@ export function VocabularyView({
   // the thing most likely to be switched straight back off.
   const [cover, setCover] = useState<Record<string, Cover>>({});
   const [sort, setSort] = useState<Record<string, Sort>>({});
+  // Grammar keeps its own selection. Weeks are the only grouping it has, so
+  // there is no group-by control and nothing to keep the two tabs in step
+  // about — mixing their picks would just mean one Start button running the
+  // wrong pool.
+  const [pickedGrammar, setPickedGrammar] = useState<Set<string>>(
+    () => new Set([String(currentWeek)]),
+  );
+  const [openGrammar, setOpenGrammar] = useState<Set<string>>(
+    () => new Set([String(currentWeek)]),
+  );
 
   // Intersected with the bank on purpose. A student may have practised words
   // from a week not yet assigned, and counting those here would put a bigger
@@ -127,8 +138,45 @@ export function VocabularyView({
     }));
   }, [words, groupBy]);
 
-  const wordsFor = useMemo(() => {
-    return (keys: Set<string>) => {
+  /** Grammar has one useful grouping: the week it was taught. */
+  const grammarWeeks = useMemo(() => {
+    const map = new Map<number, BankGrammar[]>();
+    for (const g of grammar) {
+      if (!map.has(g.weekNumber)) map.set(g.weekNumber, []);
+      map.get(g.weekNumber)!.push(g);
+    }
+    return [...map.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([week, items]) => ({ week, key: String(week), items }));
+  }, [grammar]);
+
+  const grammarOptions: PickerOption[] = useMemo(
+    () =>
+      grammarWeeks.map((g) => ({
+        key: g.key,
+        label: `Week ${g.week}`,
+        count: g.items.length,
+      })),
+    [grammarWeeks],
+  );
+
+  const grammarFor = useMemo(() => {
+    return (keys: Set<string>): QuizWord[] =>
+      grammar
+        .filter((g) => keys.has(String(g.weekNumber)))
+        .map((g) => ({
+          id: g.id,
+          // The pattern stands in for the Korean side and its name for the
+          // English; the full meaning is accepted too, so a student who writes
+          // out what it does is not marked wrong for being thorough.
+          korean: g.form,
+          english: g.name,
+          acceptedAnswers: [g.name, g.meaning],
+        }));
+  }, [grammar]);
+
+  const wordsIn = useMemo(() => {
+    return (keys: Set<string>): BankWord[] => {
       if (keys.size === 0) return [];
       if (groupBy === "day") {
         return words.filter((w) => keys.has(`${w.weekNumber}:${w.studyDay}`));
@@ -136,6 +184,17 @@ export function VocabularyView({
       return words.filter((w) => keys.has(w.partOfSpeech ?? "noun"));
     };
   }, [words, groupBy]);
+
+  const wordsFor = useMemo(
+    () => (keys: Set<string>): QuizWord[] =>
+      wordsIn(keys).map((w) => ({
+        id: w.id,
+        korean: w.korean,
+        english: w.english,
+        acceptedAnswers: w.acceptedAnswers,
+      })),
+    [wordsIn],
+  );
 
   function toggleIn<T>(set: Set<T>, value: T): Set<T> {
     const next = new Set(set);
@@ -162,7 +221,8 @@ export function VocabularyView({
 
   const thisWeekWords = words.filter((w) => w.weekNumber === currentWeek);
   const studiedThisWeek = thisWeekWords.filter((w) => studied.has(w.id)).length;
-  const pickedCount = wordsFor(picked).length;
+  const pickedCount = wordsIn(picked).length;
+  const pickedGrammarCount = grammarFor(pickedGrammar).length;
 
   return (
     <>
@@ -202,34 +262,99 @@ export function VocabularyView({
 
       {tab === "grammar" ? (
         <>
-          <p className="small">
-            {studiedG.size} of {grammar.length} patterns studied.
-          </p>
-          {grammar.map((g) => (
-            <article key={g.id} className="grammar-card">
-              <div className="grammar-head">
-                <h3 lang="ko">{g.form}</h3>
-                <span className="small">
-                  {g.name} · week {g.weekNumber}
-                  {studiedG.has(g.id) && (
-                    <span className="pill pill-ok studied-pill">studied</span>
-                  )}
-                </span>
-              </div>
-              <p>{g.meaning}</p>
-              {g.shape && <p className="small">{g.shape}</p>}
-              {g.examples.length > 0 && (
-                <ul className="example-list">
-                  {g.examples.slice(0, 3).map((e, i) => (
-                    <li key={i}>
-                      <span lang="ko">{e.ko}</span>
-                      <span className="small">{e.en}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </article>
-          ))}
+          <div className="practice-cta">
+            <div>
+              <h2>Practise grammar</h2>
+              <p className="small">
+                {pickedGrammar.size > 0
+                  ? `${pickedGrammarCount} pattern${pickedGrammarCount === 1 ? "" : "s"} ticked from ${pickedGrammar.size} week${pickedGrammar.size === 1 ? "" : "s"}. Set it up below.`
+                  : "Tick the weeks you want, then set up a run below."}
+              </p>
+            </div>
+            <a className="btn primary" href="#exercise">
+              {pickedGrammar.size > 0
+                ? `Practise ${pickedGrammarCount} patterns`
+                : "Set up practice"}
+            </a>
+          </div>
+
+          {grammarWeeks.map((gw) => {
+            const isOpen = openGrammar.has(gw.key);
+            const done = gw.items.filter((g) => studiedG.has(g.id)).length;
+            return (
+              <section key={gw.key} className="vocab-section">
+                <div className="vocab-section-head">
+                  <label className="check vocab-pick">
+                    <input
+                      type="checkbox"
+                      checked={pickedGrammar.has(gw.key)}
+                      onChange={() => setPickedGrammar((p) => toggleIn(p, gw.key))}
+                      aria-label={`Select week ${gw.week} grammar for practice`}
+                    />
+                    <span />
+                  </label>
+                  <button
+                    type="button"
+                    className="vocab-section-toggle"
+                    aria-expanded={isOpen}
+                    onClick={() => setOpenGrammar((o) => toggleIn(o, gw.key))}
+                  >
+                    <h3>Week {gw.week}</h3>
+                    <span className="small">
+                      {done}/{gw.items.length} studied
+                    </span>
+                    <span className="vocab-chevron" aria-hidden="true">
+                      {isOpen ? "\u2212" : "+"}
+                    </span>
+                  </button>
+                </div>
+
+                {isOpen && (
+                  <div className="grammar-list">
+                    {gw.items.map((g) => (
+                      <article key={g.id} className="grammar-card">
+                        <div className="grammar-head">
+                          <h3 lang="ko">{g.form}</h3>
+                          <span className="small">
+                            {g.name}
+                            {studiedG.has(g.id) && (
+                              <span className="pill pill-ok studied-pill">studied</span>
+                            )}
+                          </span>
+                        </div>
+                        <p>{g.meaning}</p>
+                        {g.shape && <p className="small">{g.shape}</p>}
+                        {g.examples.length > 0 && (
+                          <ul className="example-list">
+                            {g.examples.slice(0, 3).map((e, i) => (
+                              <li key={i}>
+                                <span lang="ko">{e.ko}</span>
+                                <span className="small">{e.en}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+
+          <Exercise
+            kicker="Practice"
+            title="Grammar by week"
+            blurb="Grammar has one grouping worth having: the week it was taught. Check the weeks you want. The full meaning is accepted as well as the short name, so writing out what a pattern does is not marked wrong."
+            options={grammarOptions}
+            selected={pickedGrammar}
+            onSelectedChange={setPickedGrammar}
+            itemsFor={grammarFor}
+            kind="grammar"
+            koreanLabel="The pattern"
+            englishLabel="What it means"
+            unit="pattern"
+          />
         </>
       ) : (
         <>
@@ -460,7 +585,7 @@ export function VocabularyView({
             options={pickerOptions}
             selected={picked}
             onSelectedChange={setPicked}
-            wordsFor={wordsFor}
+            itemsFor={wordsFor}
           />
         </>
       )}
