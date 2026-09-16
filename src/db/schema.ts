@@ -18,7 +18,10 @@ export const itemKindEnum = pgEnum("item_kind", ["vocab", "grammar"]);
 export const questionFormatEnum = pgEnum("question_format", [
   "ko_to_en_typed",
   "en_to_ko_typed",
+  /** Korean prompt, English options. */
   "vocab_choice",
+  /** English prompt, Korean options — the recognition half of recall. */
+  "en_to_ko_choice",
   "grammar_transform",
   "grammar_choice",
   "reading_choice",
@@ -106,6 +109,16 @@ export const classSettings = pgTable("class_settings", {
   maxVocabLevel: integer("max_vocab_level").notNull().default(2),
   maxGrammarLevel: integer("max_grammar_level").notNull().default(3),
   studyDaysPerWeek: integer("study_days_per_week").notNull().default(5),
+  /**
+   * Test shape. A weekly test samples the week rather than covering it — 125
+   * words cannot be asked in one sitting — which is why "verified" is a much
+   * smaller number than "studied".
+   */
+  testVocabCount: integer("test_vocab_count").notNull().default(24),
+  testGrammarCount: integer("test_grammar_count").notNull().default(4),
+  testTimeLimitMinutes: integer("test_time_limit_minutes").notNull().default(30),
+  /** Share of the vocabulary section drawn from earlier weeks. */
+  testReviewShare: integer("test_review_share").notNull().default(35),
 });
 
 // --- corpus -----------------------------------------------------------
@@ -240,6 +253,15 @@ export const questions = pgTable(
     position: integer("position").notNull(),
     prompt: text("prompt").notNull(),
     choices: text("choices").array(),
+    /**
+     * The corpus ids behind the wrong options, in the order they were chosen.
+     * Multiple choice lives or dies on its distractors, so they are recorded
+     * the way the answer is — by id — and not left implicit in the rendered
+     * text. Without this the audit could only guess what a question asked by
+     * matching glosses back to words, and the rules about part of speech and
+     * length would have nothing to check against after import.
+     */
+    distractorIds: text("distractor_ids").array(),
     correctAnswer: text("correct_answer").notNull(),
     acceptedAnswers: text("accepted_answers").array().notNull().default([]),
     points: integer("points").notNull().default(1),

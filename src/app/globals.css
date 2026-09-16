@@ -1376,3 +1376,282 @@ html[data-theme="dark"] .theme-btn .when-dark {
     max-width: 8em;
   }
 }
+
+/* ------------------------------------------------------------ test pages */
+
+.week-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+.week-row {
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.week-row.is-current {
+  border-color: var(--primary);
+  border-width: 2px;
+}
+.week-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.week-head h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.week-detail {
+  margin: 6px 0 12px;
+  opacity: 0.85;
+}
+
+/* Status reads at a glance: only "open to students" is live. */
+.pill.status-draft {
+  background: var(--surface-muted);
+  color: var(--surface-text);
+  border: 1px solid var(--border);
+}
+.pill.status-review {
+  background: var(--accent);
+  color: #fff;
+}
+.pill.status-published {
+  background: var(--secondary);
+  color: #0f172a;
+}
+.pill.status-closed {
+  background: var(--muted-strong);
+  color: var(--surface-text);
+}
+
+/* The clock turns red in the last two minutes. */
+.score.score-low {
+  background: #b3261e;
+  animation: none;
+}
+
+.choice-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+.choice {
+  min-height: 58px;
+  padding: 0 18px;
+  text-align: left;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  color: var(--surface-text);
+  font-weight: 600;
+  transition: var(--transition);
+}
+.choice:hover {
+  background: var(--blue-soft);
+  color: var(--light-foreground);
+}
+.choice.chosen {
+  background: var(--light-background);
+  border-color: var(--light-background);
+  color: #fff;
+}
+html[data-theme="dark"] .choice.chosen {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #0f172a;
+}
+
+/* ------------------------------------------- reading passage and previews */
+
+/* The passage sits with the questions that need it, on both sides: in front
+   of the student while they answer, and in the teacher's read-through. */
+.passage-panel {
+  margin: 4px 0 18px;
+  padding: 14px 18px;
+  border-left: 3px solid var(--secondary);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+}
+.passage {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: var(--surface-text);
+  white-space: pre-wrap;
+}
+.passage-gloss {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  opacity: 0.85;
+}
+
+.finding-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.finding-list li {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border-left: 3px solid transparent;
+  background: var(--surface-muted);
+  color: var(--surface-text);
+}
+.finding-error {
+  border-left-color: #b3261e;
+}
+.finding-warning {
+  border-left-color: var(--accent);
+}
+
+.preview-actions {
+  margin-bottom: 18px;
+}
+.preview-list {
+  margin: 0 0 26px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.preview-q {
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.preview-q-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.preview-q-number {
+  min-width: 2em;
+  font-weight: 800;
+  opacity: 0.6;
+}
+.preview-prompt {
+  margin: 8px 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.preview-choices {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+.preview-choices li {
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  color: var(--surface-text);
+}
+/* The answer is the thing the teacher is checking, so it reads as the answer
+   rather than as one option among four. */
+.preview-choices li.is-correct {
+  background: var(--muted);
+  color: #0f172a;
+  font-weight: 700;
+}
+.preview-answer {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+.preview-link {
+  margin: 0;
+  opacity: 0.75;
+}
+.preview-link code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--surface-muted);
+  color: var(--surface-text);
+}
+
+/* Looking back at a sat test: right and wrong readable without the colour. */
+.review-list li.was-right {
+  border-left: 3px solid var(--muted-strong);
+}
+.review-list li.was-wrong {
+  border-left: 3px solid var(--accent);
+}
+
+/* ------------------------------------------------------ grading queue */
+
+.filter-row {
+  margin-bottom: 18px;
+}
+.queue-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+.queue-row {
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.queue-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.queue-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 14px;
+  margin: 0 0 10px;
+}
+.queue-grid dt {
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0.6;
+  align-self: baseline;
+}
+.queue-grid dd {
+  margin: 0;
+}
+/* What they wrote is the thing being judged, so it carries the weight. */
+.queue-answer {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.queue-students {
+  margin: 0 0 10px;
+  opacity: 0.75;
+}
+.queue-note {
+  margin: 0 0 10px;
+  opacity: 0.75;
+}
+.queue-teach {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 560px) {
+  .queue-grid {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .queue-grid dt {
+    margin-top: 8px;
+  }
+}

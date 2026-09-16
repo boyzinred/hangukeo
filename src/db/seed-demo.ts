@@ -94,8 +94,8 @@ async function main() {
         weekPlanId: plan.id,
         title: `Week ${plan.weekNumber} test`,
         status: "closed",
-        passageKo: "학교에 갔어요. 친구를 만났어요. 같이 공부했어요.",
-        passageEn: "I went to school. I met a friend. We studied together.",
+        // No passage: this fixture asks no reading questions, and a passage
+        // nothing asks about is exactly what the validator warns on.
         timeLimitMinutes: 30,
         spec: { vocab: vocabForTest.length, grammar: weekGrammar.length, repeats: repeatRows.length },
         opensAt: new Date(`${plan.endsOn}T09:00:00Z`),
@@ -127,6 +127,10 @@ async function main() {
           section: "grammar",
           position: vocabForTest.length + n + 1,
           prompt: `What does ${g.form} express?`,
+          // The other patterns on the same test are the distractors, which is
+          // what an authored test does. Without choices at all these rows read
+          // as a malformed test to anything that inspects them later.
+          choices: weekGrammar.map((o) => o.name),
           correctAnswer: g.name,
           acceptedAnswers: [g.name],
         })),

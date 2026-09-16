@@ -1,0 +1,1 @@
+ALTER TABLE "questions" ADD COLUMN "distractor_ids" text[];

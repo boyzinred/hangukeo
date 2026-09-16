@@ -7,7 +7,7 @@
  *
  * Run with `npm run check:delete`.
  */
-import { eq, sql } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { db } from "./index";
 import {
   attempts,
@@ -42,9 +42,35 @@ async function count(table: string, userId: string) {
 }
 
 async function main() {
-  const username = `deletecheck${Date.now().toString().slice(-5)}`;
-  const [team] = await db.select().from(teams).limit(1);
+  // Everything this check needs is looked up before anything is created, so a
+  // missing fixture cannot leave a half-made account behind. It used to create
+  // the student first and exit on the next line, which is why the roster
+  // collected "Delete Check" rows nobody could account for.
+  //
+  // Any test with questions will do. Picking the first *week plan* and hoping
+  // it had one failed with an unreadable "reading 'id' of undefined" whenever
+  // the checks had cleared week 1 before this ran.
+  const [test] = await db
+    .select()
+    .from(tests)
+    .innerJoin(weekPlans, eq(weekPlans.id, tests.weekPlanId))
+    .orderBy(asc(weekPlans.weekNumber))
+    .limit(1);
+  if (!test) {
+    console.error(
+      "No test in the database to attach results to. Run `npm run db:seed:demo` first.",
+    );
+    process.exit(1);
+  }
+  const testId = test.tests.id;
 
+  const [team] = await db.select().from(teams).limit(1);
+  if (!team) {
+    console.error("No teams. Run `npm run db:seed` first.");
+    process.exit(1);
+  }
+
+  const username = `deletecheck${Date.now().toString().slice(-5)}`;
   const account = await createAccount({
     username,
     displayName: "Delete Check",
@@ -55,22 +81,16 @@ async function main() {
 
   // Give them results so the impact numbers are non-zero and the cascade is
   // actually exercised.
-  const [plan] = await db.select().from(weekPlans).limit(1);
-  const [test] = await db
-    .select()
-    .from(tests)
-    .where(eq(tests.weekPlanId, plan.id))
-    .limit(1);
   const qs = await db
     .select()
     .from(questions)
-    .where(eq(questions.testId, test.id))
+    .where(eq(questions.testId, testId))
     .limit(3);
 
   const [attempt] = await db
     .insert(attempts)
     .values({
-      testId: test.id,
+      testId,
       studentId: userId,
       state: "submitted",
       expiresAt: new Date(Date.now() + 3600_000),
@@ -112,7 +132,7 @@ async function main() {
 
   // This person also approved a test and granted a retake — the two
   // references that used to be NO ACTION and would have blocked the delete.
-  await db.update(tests).set({ approvedBy: userId }).where(eq(tests.id, test.id));
+  await db.update(tests).set({ approvedBy: userId }).where(eq(tests.id, testId));
   await db
     .update(attempts)
     .set({ retakeGrantedBy: userId })
@@ -142,7 +162,7 @@ async function main() {
   expect("team membership cascaded", stillMember.length === 0);
 
   // The point of the FK fix: the test survives its approver being deleted.
-  const [survivingTest] = await db.select().from(tests).where(eq(tests.id, test.id));
+  const [survivingTest] = await db.select().from(tests).where(eq(tests.id, testId));
   expect("test survived its approver being deleted", !!survivingTest);
   expect("approved_by nulled rather than blocking", survivingTest?.approvedBy === null);
 

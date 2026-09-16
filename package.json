@@ -26,7 +26,12 @@
     "db:seed:auth": "tsx --conditions=react-server --env-file=.env.local src/db/seed-auth.ts",
     "user:create": "tsx --conditions=react-server --env-file=.env.local src/db/create-user.ts",
     "check:delete": "tsx --conditions=react-server --env-file=.env.local src/db/check-delete.ts",
-    "check:roles": "tsx --conditions=react-server --env-file=.env.local src/db/check-roles.ts"
+    "check:roles": "tsx --conditions=react-server --env-file=.env.local src/db/check-roles.ts",
+    "check:test": "tsx --conditions=react-server --env-file=.env.local src/db/check-test.ts",
+    "test:brief": "tsx --conditions=react-server --env-file=.env.local src/db/test-brief.ts",
+    "test:import": "tsx --conditions=react-server --env-file=.env.local src/db/test-import.ts",
+    "check:import": "tsx --conditions=react-server --env-file=.env.local src/db/check-import.ts",
+    "check:review": "tsx --conditions=react-server --env-file=.env.local src/db/check-review.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

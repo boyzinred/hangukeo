@@ -50,12 +50,23 @@ export async function UserNav() {
           <Link className="header-link" href="/practice">
             Practice
           </Link>
+          <Link className="header-link" href="/test">
+            Test
+          </Link>
         </>
       )}
       {me.isStaff && (
-        <Link className="header-link" href="/teacher/home">
-          Class
-        </Link>
+        <>
+          <Link className="header-link" href="/teacher/home">
+            Class
+          </Link>
+          <Link className="header-link" href="/teacher/tests">
+            Tests
+          </Link>
+          <Link className="header-link" href="/teacher/review">
+            Review
+          </Link>
+        </>
       )}
       {me.isTeacher && (
         <Link className="header-link" href="/teacher/people">
