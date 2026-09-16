@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { UserChip } from "@/components/user-chip";
+import { FloatingControls } from "@/components/floating-controls";
+import { UserIdentity, UserNav } from "@/components/user-chip";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -39,16 +39,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <header className="site-header">
           <div className="header-inner">
-            <Link className="brand" href="/">
-              hangukeo · Korean Language Resources
-            </Link>
+            <div className="header-brand">
+              <Link className="brand" href="/">
+                hangukeo
+              </Link>
+              <UserIdentity />
+            </div>
             <nav className="header-actions">
-              <UserChip />
-              <ThemeToggle />
+              <UserNav />
             </nav>
           </div>
         </header>
         {children}
+        <FloatingControls />
       </body>
     </html>
   );

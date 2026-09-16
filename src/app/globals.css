@@ -591,11 +591,6 @@ a.btn {
   text-decoration: none;
 }
 
-/* The theme toggle renders both labels; CSS picks the applicable one, so the
-   button needs no React state and cannot flash the wrong label on hydration. */
-.theme-toggle .when-dark { display: none; }
-html[data-theme="dark"] .theme-toggle .when-light { display: none; }
-html[data-theme="dark"] .theme-toggle .when-dark { display: inline; }
 
 /* -------------------------------------------------------- teacher screens */
 
@@ -1266,4 +1261,118 @@ html[data-theme="dark"] .inline-panel code {
 }
 .inline-panel .credential-grid {
   margin-top: 10px;
+}
+
+/* --------------------------------------------------- header composition */
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.header-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 14px;
+  border-left: 1px solid var(--border);
+  font-size: 0.88rem;
+  font-weight: 600;
+  min-width: 0;
+}
+.header-user-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ------------------------------------------------------ floating controls */
+
+/*
+ * Two fixed 46px circles at the bottom right, per the design system: back to
+ * top, then the theme toggle. They sit above page content and clear the safe
+ * area on phones with a home indicator.
+ */
+.floating-controls {
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 40;
+}
+
+.floating-btn {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--light-background);
+  color: #fff;
+  transition: var(--transition);
+}
+html[data-theme="dark"] .floating-btn {
+  background: var(--primary);
+  color: #0f172a;
+}
+.floating-btn:hover {
+  transform: translateY(-2px);
+}
+.floating-btn:focus-visible {
+  outline: 3px solid var(--secondary);
+  outline-offset: 3px;
+}
+.floating-btn svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+/* Back-to-top stays out of the way until there is something to go back up to.
+   Hidden with opacity rather than display so it can fade and stay focusable
+   only when active. */
+.back-to-top.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+/* One button, two icons; CSS picks by theme so there is no hydration flash. */
+.theme-btn .when-dark {
+  display: none;
+}
+html[data-theme="dark"] .theme-btn .when-light {
+  display: none;
+}
+html[data-theme="dark"] .theme-btn .when-dark {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-btn:hover {
+    transform: none;
+  }
+  .back-to-top.is-hidden {
+    transform: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .floating-controls {
+    right: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+  .header-user {
+    padding-left: 10px;
+    gap: 6px;
+  }
+  .header-user-name {
+    max-width: 8em;
+  }
 }
