@@ -6,6 +6,16 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "./index";
 import { corpusVocab, practiceResponses, practiceRuns, users } from "./schema";
 import { deletePracticeRun, recordPracticeRun } from "../lib/practice";
+import { drillPhase, scores } from "../lib/drill-state";
+
+let failures = 0;
+function expect(label: string, cond: boolean, detail = "") {
+  if (cond) console.log(`  ok    ${label}`);
+  else {
+    failures++;
+    console.log(`  FAIL  ${label}${detail ? ` — ${detail}` : ""}`);
+  }
+}
 
 async function studiedCount(studentId: string) {
   const [row] = await db
@@ -21,6 +31,34 @@ async function studiedCount(studentId: string) {
   return row.n;
 }
 
+/**
+ * The retry rule, as a table. The user-visible promise is "no hint until the
+ * second miss", and the difference between revealing on the first and on the
+ * second is invisible in a screenshot.
+ */
+function checkDrillPhases() {
+  console.log("drill: when the answer appears");
+  const right = { correct: true };
+  const wrong = { correct: false };
+
+  const cases: [string, { correct: boolean }[], boolean, Partial<ReturnType<typeof drillPhase>>][] = [
+    ["fresh question takes input", [], true, { accepting: true, revealed: false, canAdvance: false }],
+    ["right first time moves on", [right], true, { revealed: false, canAdvance: true, accepting: false }],
+    ["one miss, retry on: no hint, must try again", [wrong], true, { revealed: false, mustRetry: true, accepting: true, canAdvance: false }],
+    ["two misses, retry on: answer shown, still must type it", [wrong, wrong], true, { revealed: true, mustRetry: true, accepting: true, canAdvance: false }],
+    ["recovered on retry moves on", [wrong, right], true, { revealed: false, mustRetry: false, canAdvance: true, accepting: false }],
+    ["one miss, retry off: answer shown and the box closes", [wrong], false, { revealed: true, mustRetry: false, accepting: false, canAdvance: true }],
+  ];
+
+  for (const [label, attempts, retry, want] of cases) {
+    const got = drillPhase(attempts, retry);
+    const ok = (Object.keys(want) as (keyof typeof want)[]).every((k) => got[k] === want[k]);
+    expect(label, ok, JSON.stringify(got));
+  }
+
+  expect("only a first-attempt answer scores", scores([right]) && !scores([wrong, right]));
+}
+
 async function main() {
   const [me] = await db
     .select()
@@ -28,7 +66,8 @@ async function main() {
     .where(sql`'student' = any(${users.roles})`)
     .orderBy(users.createdAt)
     .limit(1);
-  console.log(`acting as ${me.displayName}`);
+  checkDrillPhases();
+  console.log(`\nacting as ${me.displayName}`);
 
   const before = await studiedCount(me.id);
 
@@ -75,12 +114,17 @@ async function main() {
 
   // Only the first-try-correct word should raise "studied"; a retry-correct
   // and an outright miss must not.
-  console.log(ok ? "\nPASS" : "\nFAIL — expected +1 studied, firstTryCorrect=1");
+  expect(
+    "only the first-try-correct word raises studied",
+    ok,
+    `saved=${res.saved} total=${run.total} firstTryCorrect=${run.firstTryCorrect} studied ${before}→${after}`,
+  );
 
   await deletePracticeRun(run.id);
   console.log("cleaned up");
 
-  process.exit(ok ? 0 : 1);
+  console.log(failures === 0 ? "\nPASS" : `\n${failures} FAILED`);
+  process.exit(failures === 0 ? 0 : 1);
 }
 
 main().catch((e) => {

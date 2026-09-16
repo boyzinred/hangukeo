@@ -1781,6 +1781,12 @@ html[data-theme="dark"] .choice.chosen {
   opacity: 0.7;
 }
 
+/* The stat strip is a header for what follows, so the tabs sit close under it
+   rather than floating midway between it and the list. */
+.stat-strip + .tab-row {
+  margin-top: 18px;
+  margin-bottom: 18px;
+}
 .vocab-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -1891,12 +1897,6 @@ html[data-theme="dark"] .choice.chosen {
   font-size: 1.1rem;
   font-weight: 600;
 }
-.roman {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
 /* Covering a column turns the list into a self-test. Revealed on hover and on
    focus, so it works from the keyboard as well as the mouse. */
 .covered {
@@ -1910,13 +1910,28 @@ td:hover > .covered {
   background: transparent;
 }
 
+.vocab-table .col-studied {
+  width: 5.5em;
+  text-align: center;
+}
+/* A fixed box so the tick and the placeholder occupy the same space and the
+   column reads as a column rather than as ragged marks. */
 .studied-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
   font-weight: 800;
-  color: var(--muted-strong);
+  line-height: 1;
+  color: #0f172a;
+  background: var(--muted);
 }
 .studied-mark.is-blank {
-  opacity: 0.3;
   color: inherit;
+  background: var(--surface-muted);
+  opacity: 0.45;
 }
 .studied-pill {
   margin-left: 8px;
@@ -1924,10 +1939,26 @@ td:hover > .covered {
 
 /* --- the student dashboard --- */
 
+/* Two columns: the three cards about right now stack on the left, and the
+   term — the slow number, the one you check rather than act on — stands beside
+   them at their full height. */
 .dash-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(2, minmax(300px, 1fr));
   gap: 14px;
+}
+.dash-card.is-term {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+}
+@media (max-width: 860px) {
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+  .dash-card.is-term {
+    grid-column: auto;
+    grid-row: auto;
+  }
 }
 .dash-card {
   display: flex;
@@ -2055,4 +2086,201 @@ td:hover > .covered {
   .dash-figures {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* --- per-section controls, and the exercise panel --- */
+
+.section-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.section-controls .mode-label {
+  margin-left: 6px;
+}
+.section-controls .mode-label:first-child {
+  margin-left: 0;
+}
+
+/* Practice is the point of the page, so it is a block rather than a button
+   tucked in a toolbar. */
+.practice-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 18px 0;
+  padding: 18px 22px;
+  border-radius: var(--radius-lg);
+  background: var(--secondary);
+  color: #0f172a;
+}
+.practice-cta h2 {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+.practice-cta p {
+  margin: 0;
+  opacity: 0.85;
+}
+.practice-cta .btn.primary {
+  background: #0f172a;
+  color: #fff;
+}
+
+.exercise-panel {
+  margin: 26px 0 10px;
+  padding: 22px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  scroll-margin-top: 80px;
+}
+.exercise-panel-head h2 {
+  margin: 4px 0 6px;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+.exercise-panel-head p {
+  margin: 0 0 16px;
+  max-width: 62ch;
+}
+
+.picker {
+  margin-bottom: 16px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  color: var(--surface-text);
+}
+.picker-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 6px;
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.option:has(input:checked) {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.option input {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+}
+
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.exercise-grid > label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+.exercise-grid select,
+.exercise-grid input[type="number"] {
+  min-height: 42px;
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--surface-text);
+  font: inherit;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.exercise-grid small {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.7;
+}
+.exercise-grid .retry-option {
+  flex-direction: row;
+  align-items: flex-start;
+  align-self: end;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.9rem;
+}
+.retry-option span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-weight: 600;
+}
+
+.exercise-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.menu-summary {
+  font-weight: 700;
+}
+.menu-summary.is-empty {
+  opacity: 0.6;
+  font-weight: 400;
+}
+
+.export-block {
+  margin: 18px 0;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  color: var(--surface-text);
+}
+.export-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.export-head h4 {
+  margin: 0;
+}
+.export-text {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--surface-text);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.85rem;
+  resize: vertical;
 }

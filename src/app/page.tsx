@@ -221,7 +221,7 @@ function Semester({
   const targetPct = Math.min(100, Math.round((target / goal) * 100));
 
   return (
-    <article className="dash-card">
+    <article className="dash-card is-term">
       <div className="dash-head">
         <h2>The term</h2>
         <span className="small">{pct}% of {goal}</span>

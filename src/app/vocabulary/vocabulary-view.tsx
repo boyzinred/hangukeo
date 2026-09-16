@@ -7,14 +7,19 @@ import {
   type BankGrammar,
   type BankWord,
 } from "@/lib/bank-shared";
-import { romanize } from "@/lib/romanize";
-import type { QuizWord } from "@/lib/quiz";
-import { Drill } from "./drill";
+import { Exercise, type PickerOption } from "./exercise";
 
 type GroupBy = "day" | "pos";
 type Tab = "words" | "grammar";
-/** Which column is hidden, for self-testing without leaving the page. */
-type BlurField = "english" | "romanization" | "korean";
+/** Which column a section is hiding, for self-testing in place. */
+type Cover = "none" | "english" | "korean";
+type Sort = "korean" | "english" | "todo";
+
+const SORT_LABELS: Record<Sort, string> = {
+  korean: "Korean A–Z",
+  english: "English A–Z",
+  todo: "Not studied first",
+};
 
 type Section = {
   key: string;
@@ -41,10 +46,17 @@ export function VocabularyView({
   const [tab, setTab] = useState<Tab>("words");
   const [groupBy, setGroupBy] = useState<GroupBy>("day");
   const [query, setQuery] = useState("");
-  const [picked, setPicked] = useState<Set<string>>(new Set());
-  // This week's days start open. Landing on a page of closed accordions makes
-  // the student click before they can see anything, and this week's words are
-  // what they came for; earlier weeks stay folded away.
+  // This week's days, ticked. The exercise below reads the same set, so a
+  // student who came to practise tonight's batch can press Start without
+  // choosing anything first.
+  const [picked, setPicked] = useState<Set<string>>(
+    () =>
+      new Set(
+        words
+          .filter((w) => w.weekNumber === currentWeek)
+          .map((w) => `${w.weekNumber}:${w.studyDay}`),
+      ),
+  );
   const [open, setOpen] = useState<Set<string>>(
     () =>
       new Set(
@@ -53,16 +65,15 @@ export function VocabularyView({
           .map((w) => `${w.weekNumber}:${w.studyDay}`),
       ),
   );
-  const [blur, setBlur] = useState<Set<BlurField>>(new Set());
-  // The drill replaces the list rather than sitting under it: the answers are
-  // on this page, and a drill you can scroll away from is not a test of
-  // anything.
-  const [drill, setDrill] = useState<{ pool: QuizWord[]; label: string } | null>(null);
+  // Cover and sort are per section: a student covering the English on day 3 is
+  // testing day 3, and having that follow them into every other section was
+  // the thing most likely to be switched straight back off.
+  const [cover, setCover] = useState<Record<string, Cover>>({});
+  const [sort, setSort] = useState<Record<string, Sort>>({});
 
   // Intersected with the bank on purpose. A student may have practised words
-  // from a week that has not been assigned yet — the drill pool is whatever
-  // they select — and counting those here would put a bigger number on this
-  // page than the dashboard shows for the same thing.
+  // from a week not yet assigned, and counting those here would put a bigger
+  // number on this page than the dashboard shows for the same thing.
   const studied = useMemo(() => {
     const practised = new Set(studiedWords);
     return new Set(words.filter((w) => practised.has(w.id)).map((w) => w.id));
@@ -73,14 +84,6 @@ export function VocabularyView({
     return new Set(grammar.filter((g) => practised.has(g.id)).map((g) => g.id));
   }, [studiedGrammar, grammar]);
 
-  // Romanization is derived once for the whole bank: it never changes, and
-  // recomputing it inside a filter would redo 1,500 words on every keystroke.
-  const roman = useMemo(() => {
-    const m = new Map<string, string>();
-    for (const w of words) m.set(w.id, romanize(w.korean));
-    return m;
-  }, [words]);
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return words;
@@ -88,10 +91,9 @@ export function VocabularyView({
       (w) =>
         w.korean.includes(q) ||
         w.english.toLowerCase().includes(q) ||
-        (roman.get(w.id) ?? "").includes(q) ||
         w.acceptedAnswers.some((a) => a.toLowerCase().includes(q)),
     );
-  }, [words, query, roman]);
+  }, [words, query]);
 
   const sections: Section[] = useMemo(() => {
     if (groupBy === "day") {
@@ -109,10 +111,31 @@ export function VocabularyView({
     }));
   }, [filtered, groupBy]);
 
-  const pickedWords = useMemo(
-    () => sections.filter((s) => picked.has(s.key)).flatMap((s) => s.words),
-    [sections, picked],
-  );
+  /** The same keys the exercise picker uses, so a tick here is a tick there. */
+  const pickerOptions: PickerOption[] = useMemo(() => {
+    if (groupBy === "day") {
+      return groupByWeekDay(words).map((g) => ({
+        key: g.key,
+        label: `Week ${g.week} · Day ${g.day}`,
+        count: g.words.length,
+      }));
+    }
+    return groupByPos(words).map((g) => ({
+      key: g.key,
+      label: g.label,
+      count: g.words.length,
+    }));
+  }, [words, groupBy]);
+
+  const wordsFor = useMemo(() => {
+    return (keys: Set<string>) => {
+      if (keys.size === 0) return [];
+      if (groupBy === "day") {
+        return words.filter((w) => keys.has(`${w.weekNumber}:${w.studyDay}`));
+      }
+      return words.filter((w) => keys.has(w.partOfSpeech ?? "noun"));
+    };
+  }, [words, groupBy]);
 
   function toggleIn<T>(set: Set<T>, value: T): Set<T> {
     const next = new Set(set);
@@ -121,41 +144,25 @@ export function VocabularyView({
     return next;
   }
 
-  function startDrill(pool: BankWord[], label: string) {
-    setDrill({
-      pool: pool.map((w) => ({
-        id: w.id,
-        korean: w.korean,
-        english: w.english,
-        acceptedAnswers: w.acceptedAnswers,
-      })),
-      label,
-    });
-    window.scrollTo({ top: 0 });
+  function sortWords(list: BankWord[], how: Sort): BankWord[] {
+    const out = [...list];
+    if (how === "english") {
+      out.sort((a, b) => a.english.localeCompare(b.english));
+    } else if (how === "todo") {
+      out.sort(
+        (a, b) =>
+          Number(studied.has(a.id)) - Number(studied.has(b.id)) ||
+          a.korean.localeCompare(b.korean, "ko"),
+      );
+    } else {
+      out.sort((a, b) => a.korean.localeCompare(b.korean, "ko"));
+    }
+    return out;
   }
 
-  if (drill) {
-    return (
-      <>
-        <div className="practice-bar">
-          <span className="small">Practising {drill.label}</span>
-          <button
-            type="button"
-            className="btn secondary"
-            onClick={() => setDrill(null)}
-          >
-            Back to the list
-          </button>
-        </div>
-        <Drill pool={drill.pool} kind="words" />
-      </>
-    );
-  }
-
-  const studiedThisWeek = words.filter(
-    (w) => w.weekNumber === currentWeek && studied.has(w.id),
-  ).length;
-  const thisWeekTotal = words.filter((w) => w.weekNumber === currentWeek).length;
+  const thisWeekWords = words.filter((w) => w.weekNumber === currentWeek);
+  const studiedThisWeek = thisWeekWords.filter((w) => studied.has(w.id)).length;
+  const pickedCount = wordsFor(picked).length;
 
   return (
     <>
@@ -164,14 +171,17 @@ export function VocabularyView({
         <Stat label="Studied" value={studied.size} note="right first time in practice" />
         <Stat
           label={`Week ${currentWeek}`}
-          value={`${studiedThisWeek}/${thisWeekTotal}`}
+          value={`${studiedThisWeek}/${thisWeekWords.length}`}
           note="this week's words studied"
         />
-        <Stat label="Grammar" value={`${studiedG.size}/${grammar.length}`} note="patterns studied" />
+        <Stat
+          label="Grammar"
+          value={`${studiedG.size}/${grammar.length}`}
+          note="patterns studied"
+        />
       </div>
 
-      <div className="mode-row">
-        <span className="mode-label">Show</span>
+      <div className="mode-row tab-row">
         <button
           type="button"
           className={`mode-btn ${tab === "words" ? "active" : ""}`}
@@ -192,32 +202,9 @@ export function VocabularyView({
 
       {tab === "grammar" ? (
         <>
-          <div className="practice-bar">
-            <span className="small">
-              {studiedG.size} of {grammar.length} patterns studied
-            </span>
-            <button
-              type="button"
-              className="btn positive"
-              onClick={() =>
-                startDrill(
-                  grammar.map((g) => ({
-                    id: g.id,
-                    korean: g.form,
-                    english: g.name,
-                    acceptedAnswers: [g.name, g.meaning],
-                    partOfSpeech: null,
-                    topic: null,
-                    weekNumber: g.weekNumber,
-                    studyDay: 0,
-                  })),
-                  `${grammar.length} grammar patterns`,
-                )
-              }
-            >
-              Practise grammar
-            </button>
-          </div>
+          <p className="small">
+            {studiedG.size} of {grammar.length} patterns studied.
+          </p>
           {grammar.map((g) => (
             <article key={g.id} className="grammar-card">
               <div className="grammar-head">
@@ -229,7 +216,6 @@ export function VocabularyView({
                   )}
                 </span>
               </div>
-              <p className="roman">{romanize(g.form)}</p>
               <p>{g.meaning}</p>
               {g.shape && <p className="small">{g.shape}</p>}
               {g.examples.length > 0 && (
@@ -279,7 +265,7 @@ export function VocabularyView({
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search Korean, English or romanization…"
+              placeholder="Search Korean or English…"
               aria-label="Search the vocabulary"
             />
 
@@ -301,55 +287,29 @@ export function VocabularyView({
             </div>
           </div>
 
-          {/* Hiding a column turns the list into a self-test without leaving
-              the page — cover the English and read down the Korean. */}
-          <div className="mode-row">
-            <span className="mode-label">Cover</span>
-            {(["english", "romanization", "korean"] as BlurField[]).map((f) => (
-              <button
-                key={f}
-                type="button"
-                className={`mode-btn ${blur.has(f) ? "active" : ""}`}
-                aria-pressed={blur.has(f)}
-                onClick={() => setBlur((b) => toggleIn(b, f))}
-              >
-                {f === "english" ? "English" : f === "korean" ? "Korean" : "Romanization"}
-              </button>
-            ))}
-          </div>
-
           <nav className="jump-card" aria-label="Jump to a section">
             <span className="mode-label">Jump to</span>
             <div className="jump-grid">
               {sections.map((s) => (
-                <a key={s.key} className="jump-link" href={`#sec-${s.key.replace(":", "-")}`}>
+                <a key={s.key} className="jump-link" href={`#sec-${sectionId(s.key)}`}>
                   {s.title} <span className="small">{s.words.length}</span>
                 </a>
               ))}
             </div>
           </nav>
 
-          <div className="practice-bar">
-            <span className="small">
-              {picked.size > 0
-                ? `${pickedWords.length} words from ${picked.size} section${picked.size === 1 ? "" : "s"}`
-                : `Nothing ticked — practice will use all ${filtered.length} shown`}
-            </span>
-            <button
-              type="button"
-              className="btn positive"
-              disabled={filtered.length === 0}
-              onClick={() =>
-                startDrill(
-                  picked.size > 0 ? pickedWords : filtered,
-                  picked.size > 0
-                    ? `${pickedWords.length} words from ${picked.size} section${picked.size === 1 ? "" : "s"}`
-                    : `${filtered.length} words`,
-                )
-              }
-            >
-              Practise
-            </button>
+          <div className="practice-cta">
+            <div>
+              <h2>Practise</h2>
+              <p className="small">
+                {picked.size > 0
+                  ? `${pickedCount} words ticked from ${picked.size} section${picked.size === 1 ? "" : "s"}. Set it up below.`
+                  : "Tick the sections you want, then set up a run below — language, word limit, timer."}
+              </p>
+            </div>
+            <a className="btn primary" href="#exercise">
+              {picked.size > 0 ? `Practise ${pickedCount} words` : "Set up practice"}
+            </a>
           </div>
 
           {sections.length === 0 && (
@@ -359,12 +319,11 @@ export function VocabularyView({
           {sections.map((s) => {
             const isOpen = open.has(s.key) || query.trim().length > 0;
             const done = s.words.filter((w) => studied.has(w.id)).length;
+            const sectionCover = cover[s.key] ?? "none";
+            const sectionSort = sort[s.key] ?? "korean";
+
             return (
-              <section
-                key={s.key}
-                id={`sec-${s.key.replace(":", "-")}`}
-                className="vocab-section"
-              >
+              <section key={s.key} id={`sec-${sectionId(s.key)}`} className="vocab-section">
                 <div className="vocab-section-head">
                   <label className="check vocab-pick">
                     <input
@@ -395,69 +354,123 @@ export function VocabularyView({
                 </div>
 
                 {isOpen && (
-                  <div className="table-wrap">
-                    <table className="vocab-table">
-                      <thead>
-                        <tr>
-                          <th>English</th>
-                          <th>Romanization</th>
-                          <th>Korean</th>
-                          <th>{groupBy === "day" ? "Part of speech" : "Day"}</th>
-                          <th>Studied</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {s.words.map((w) => (
-                          <tr key={w.id}>
-                            <td>
-                              <span className={blur.has("english") ? "covered" : ""}>
-                                {w.english}
-                              </span>
-                            </td>
-                            <td>
-                              <span
-                                className={`roman ${blur.has("romanization") ? "covered" : ""}`}
-                              >
-                                {roman.get(w.id)}
-                              </span>
-                            </td>
-                            <td>
-                              <span
-                                lang="ko"
-                                className={`hangul ${blur.has("korean") ? "covered" : ""}`}
-                              >
-                                {w.korean}
-                              </span>
-                            </td>
-                            <td className="small">
-                              {groupBy === "day"
-                                ? (w.partOfSpeech ?? "—")
-                                : `W${w.weekNumber} D${w.studyDay}`}
-                            </td>
-                            <td>
-                              {studied.has(w.id) ? (
-                                <span className="studied-mark" title="Right first time in practice">
-                                  ✓
-                                </span>
-                              ) : (
-                                <span className="studied-mark is-blank" aria-hidden="true">
-                                  ·
-                                </span>
-                              )}
-                            </td>
-                          </tr>
+                  <>
+                    <div className="section-controls">
+                      <span className="mode-label">Cover</span>
+                      {(["english", "korean"] as const).map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          className={`mode-btn ${sectionCover === c ? "active" : ""}`}
+                          aria-pressed={sectionCover === c}
+                          onClick={() =>
+                            setCover((prev) => ({
+                              ...prev,
+                              [s.key]: prev[s.key] === c ? "none" : c,
+                            }))
+                          }
+                        >
+                          {c === "english" ? "English" : "Korean"}
+                        </button>
+                      ))}
+
+                      <span className="mode-label">Sort by</span>
+                      <select
+                        className="compact-select"
+                        value={sectionSort}
+                        onChange={(e) =>
+                          setSort((prev) => ({ ...prev, [s.key]: e.target.value as Sort }))
+                        }
+                        aria-label={`Sort ${s.title}`}
+                      >
+                        {(Object.keys(SORT_LABELS) as Sort[]).map((k) => (
+                          <option key={k} value={k}>
+                            {SORT_LABELS[k]}
+                          </option>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      </select>
+                    </div>
+
+                    <div className="table-wrap">
+                      <table className="vocab-table">
+                        <thead>
+                          <tr>
+                            <th>Korean</th>
+                            <th>English</th>
+                            <th>{groupBy === "day" ? "Part of speech" : "Day"}</th>
+                            <th className="col-studied">Studied</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortWords(s.words, sectionSort).map((w) => (
+                            <tr key={w.id}>
+                              <td>
+                                <span
+                                  lang="ko"
+                                  className={`hangul ${sectionCover === "korean" ? "covered" : ""}`}
+                                >
+                                  {w.korean}
+                                </span>
+                              </td>
+                              <td>
+                                <span
+                                  className={sectionCover === "english" ? "covered" : ""}
+                                >
+                                  {w.english}
+                                </span>
+                              </td>
+                              <td className="small">
+                                {groupBy === "day"
+                                  ? (w.partOfSpeech ?? "—")
+                                  : `W${w.weekNumber} D${w.studyDay}`}
+                              </td>
+                              <td className="col-studied">
+                                {studied.has(w.id) ? (
+                                  <span
+                                    className="studied-mark"
+                                    title="Right first time in practice"
+                                  >
+                                    ✓
+                                  </span>
+                                ) : (
+                                  <span className="studied-mark is-blank" aria-hidden="true">
+                                    ·
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
                 )}
               </section>
             );
           })}
+
+          <Exercise
+            kicker="Practice"
+            title={groupBy === "day" ? "By study day" : "By part of speech"}
+            blurb={
+              groupBy === "day"
+                ? "Check one day for tonight's batch, or several to review everything so far. Whatever you ticked in the list above is already checked here."
+                : "Check the kinds of word you want. Drilling one part of speech at a time is how the particles stop blurring into each other."
+            }
+            options={pickerOptions}
+            selected={picked}
+            onSelectedChange={setPicked}
+            wordsFor={wordsFor}
+          />
         </>
       )}
     </>
   );
+}
+
+/** Section keys carry a colon, which is not valid in a fragment identifier. */
+function sectionId(key: string): string {
+  return key.replace(/[^a-zA-Z0-9]/g, "-");
 }
 
 function Stat({

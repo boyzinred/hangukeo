@@ -1,205 +1,280 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { savePracticeRun } from "./actions";
+import { drillPhase } from "@/lib/drill-state";
 import {
-  DIRECTION_LABELS,
   answerDisplay,
   buildQuestions,
   displayValue,
   isCorrect,
-  type Direction,
+  type Mode,
   type Question,
   type QuizWord,
 } from "@/lib/quiz";
 
-const DIRECTIONS: Direction[] = ["ko_to_en", "en_to_ko", "mixed"];
-const LENGTHS = [10, 20, 40, 0]; // 0 = every item in scope
+export type DrillOptions = {
+  questionMode: Mode;
+  answerMode: Mode;
+  /** 0 keeps every selected word. */
+  limit: number;
+  /** 0 is untimed. */
+  timerMinutes: number;
+  retryUntilRight: boolean;
+};
+
+type Attempt = { text: string; correct: boolean };
 
 type Result = {
   word: QuizWord;
+  /** Right on the first attempt — the only kind that scores. */
   firstTry: boolean;
-  isCorrect: boolean;
-  answer: string;
+  attempts: Attempt[];
 };
 
+export const SEPARATORS = [
+  { key: "slash", label: "/", value: " / " },
+  { key: "dash", label: "–", value: " – " },
+  { key: "comma", label: ",", value: ", " },
+  { key: "tab", label: "Tab", value: "\t" },
+];
+
+/**
+ * The drill.
+ *
+ * A wrong answer does not give the answer away. The first miss says only that
+ * it was wrong, because being made to search for it once is most of what the
+ * drill is for; the second shows it, because by then guessing again teaches
+ * nothing. Only a first-time-correct answer scores, so a word recovered on the
+ * retry is still a word to review.
+ */
 export function Drill({
   pool,
+  options,
+  label,
   kind = "words",
-  scope,
+  onExit,
 }: {
   pool: QuizWord[];
+  options: DrillOptions;
+  label: string;
   kind?: "words" | "grammar";
-  scope?: unknown;
+  onExit: () => void;
 }) {
-  const [direction, setDirection] = useState<Direction>("ko_to_en");
-  const [length, setLength] = useState(20);
-  const [questions, setQuestions] = useState<Question[] | null>(null);
+  const questions = useMemo(
+    () =>
+      buildQuestions(
+        pool,
+        options.questionMode === "korean" ? "ko_to_en" : "en_to_ko",
+        options.limit > 0 ? options.limit : undefined,
+      ),
+    [pool, options.questionMode, options.limit],
+  );
+
   const [index, setIndex] = useState(0);
-  const [answer, setAnswer] = useState("");
-  const [score, setScore] = useState(0);
+  const [typed, setTyped] = useState("");
+  const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [results, setResults] = useState<Result[]>([]);
-  // A missed word is shown once more. It cannot score, but re-typing it is
-  // most of the value of a drill.
-  const [hadWrong, setHadWrong] = useState(false);
-  const [retrying, setRetrying] = useState(false);
-  const [feedback, setFeedback] = useState<
-    { ok: boolean; text: string; key: string } | null
-  >(null);
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const [separator, setSeparator] = useState(SEPARATORS[0].key);
+  const [copied, setCopied] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(
+    options.timerMinutes > 0 ? Math.round(options.timerMinutes * 60) : 0,
+  );
   const inputRef = useRef<HTMLInputElement>(null);
-  // Guards against double-saving the same run.
   const savedRef = useRef(false);
+  // The countdown fires from outside React's render flow and needs the results
+  // as they stand. Reading them through a state updater worked but ran a side
+  // effect inside one, which StrictMode is entitled to do twice.
+  const resultsRef = useRef<Result[]>([]);
 
-  const current = questions?.[index] ?? null;
-  const finished = questions !== null && index >= questions.length;
+  const question: Question | undefined = questions[index];
+  const answered = attempts.length > 0 && attempts[attempts.length - 1].correct;
+  const phase = drillPhase(attempts, options.retryUntilRight);
+  const { revealed, mustRetry } = phase;
 
-  const promptWords = useMemo(() => pool, [pool]);
-
-  function start() {
-    const qs = buildQuestions(pool, direction, length || undefined);
-    setQuestions(qs);
-    setIndex(0);
-    setScore(0);
-    setResults([]);
-    setAnswer("");
-    setFeedback(null);
-    setHadWrong(false);
-    setRetrying(false);
-    savedRef.current = false;
-    queueMicrotask(() => inputRef.current?.focus());
-  }
-
-  function check(e: React.FormEvent) {
-    e.preventDefault();
-    if (!current || feedback) return;
-
-    const ok = isCorrect(
-      promptWords,
-      current.word,
-      current.questionMode,
-      current.answerMode,
-      answer,
-    );
-    const key = answerDisplay(current.word, current.answerMode);
-
-    if (ok) {
-      if (!hadWrong) setScore((s) => s + 1);
-      setResults((r) => [
-        ...r,
-        { word: current.word, firstTry: !hadWrong, isCorrect: true, answer },
-      ]);
-      setFeedback({
-        ok: true,
-        text: hadWrong ? "Correct on retry." : "Correct.",
-        key,
+  const finish = useCallback(
+    (final: Result[]) => {
+      setFinished(true);
+      if (savedRef.current) return;
+      savedRef.current = true;
+      // Practice is logged for the student's own studied count. It never feeds
+      // the semester total, which is test-based.
+      void savePracticeRun({
+        kind,
+        direction: `${options.questionMode}_to_${options.answerMode}`,
+        scope: { label, asked: final.length },
+        outcomes: final.map((r) => ({
+          itemId: r.word.id,
+          firstTry: r.firstTry,
+          isCorrect: r.attempts.some((a) => a.correct),
+        })),
       });
-      setRetrying(false);
-    } else if (!hadWrong) {
-      // First miss — show the answer, then ask the same question again.
-      setHadWrong(true);
-      setRetrying(true);
-      setFeedback({ ok: false, text: "Not quite. Try it once more.", key });
-    } else {
-      setResults((r) => [...r, { word: current.word, firstTry: false, isCorrect: false, answer }]);
-      setFeedback({ ok: false, text: "Not quite.", key });
-      setRetrying(false);
-    }
-  }
+    },
+    [kind, label, options.questionMode, options.answerMode],
+  );
 
-  function next() {
-    setFeedback(null);
-    setAnswer("");
-    if (retrying) {
-      // Same question again; hadWrong stays true so it cannot score.
-      setRetrying(false);
-    } else {
-      const last = questions !== null && index + 1 >= questions.length;
-      setIndex((i) => i + 1);
-      setHadWrong(false);
-      // Saved once, on the step past the final question. Practice feeds the
-      // "studied" count only — mastery stays test-only.
-      if (last && !savedRef.current) {
-        savedRef.current = true;
-        void savePracticeRun({
-          kind,
-          direction,
-          scope,
-          outcomes: results.map((r) => ({
-            itemId: r.word.id,
-            firstTry: r.firstTry,
-            isCorrect: r.isCorrect,
-          })),
-        }).catch(() => {
-          // A failed save must not interrupt the drill; the score on screen
-          // is still correct, it just did not reach the teacher's dashboard.
-          savedRef.current = false;
-        });
-      }
-    }
-    queueMicrotask(() => inputRef.current?.focus());
-  }
+  // The countdown owns its own end: reaching zero finishes the run wherever
+  // the student happens to be.
+  useEffect(() => {
+    if (options.timerMinutes <= 0 || finished) return;
+    const id = setInterval(() => {
+      setSecondsLeft((s) => {
+        if (s <= 1) {
+          clearInterval(id);
+          finish(resultsRef.current);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [options.timerMinutes, finished, finish]);
 
-  if (questions === null) {
-    return (
-      <Setup
-        direction={direction}
-        setDirection={setDirection}
-        length={length}
-        setLength={setLength}
-        poolSize={pool.length}
-        kind={kind}
-        onStart={start}
-      />
+  useEffect(() => {
+    if (!finished) inputRef.current?.focus();
+  }, [index, finished]);
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!question || finished) return;
+    const text = typed.trim();
+    if (!text) return;
+
+    const right = isCorrect(
+      pool,
+      question.word,
+      question.questionMode,
+      question.answerMode,
+      text,
     );
+    const next = [...attempts, { text, correct: right }];
+    setAttempts(next);
+    setTyped("");
+
+    if (!right) return;
+    if (next.length === 1) setScore((s) => s + 1);
   }
+
+  function advance() {
+    if (!question) return;
+    const record: Result = {
+      word: question.word,
+      firstTry: attempts.length === 1 && attempts[0].correct,
+      attempts,
+    };
+    const all = [...results, record];
+    resultsRef.current = all;
+    setResults(all);
+    setAttempts([]);
+    setTyped("");
+    if (index + 1 >= questions.length) finish(all);
+    else setIndex(index + 1);
+  }
+
+  const missed = results.filter((r) => !r.firstTry);
+
+  const markdown = useMemo(() => {
+    const sep = SEPARATORS.find((s) => s.key === separator)?.value ?? " / ";
+    const dir =
+      options.questionMode === "korean" ? "Korean → English" : "English → Korean";
+    return [
+      `# Words to review — ${label} — ${new Date().toISOString().slice(0, 10)}`,
+      `# ${dir} · ${missed.length} of ${results.length} · scored ${score}/${results.length}`,
+      "",
+      ...missed.map((r) => `${r.word.korean}${sep}${r.word.english}`),
+      "",
+    ].join("\n");
+  }, [missed, results.length, score, separator, label, options.questionMode]);
 
   if (finished) {
-    const missed = results.filter((r) => !r.firstTry);
+    const pct = results.length ? Math.round((score / results.length) * 100) : 0;
     return (
       <article className="quiz-card">
         <div className="exercise-head">
           <div>
-            <span className="kicker">Exercise complete</span>
-            <h3>Practice results</h3>
+            <span className="kicker">Practice complete</span>
+            <h3>{label}</h3>
           </div>
-          <div className="score" aria-live="polite">
-            {score} / {questions.length}
+          <div className="score">
+            {score} / {results.length}
           </div>
         </div>
         <div className="quiz-body">
-          <p className="finish-headline">
-            First-try score {score} / {questions.length}
-          </p>
-          <p className="small" style={{ marginTop: 0 }}>
-            {DIRECTION_LABELS[direction]} · practice is not recorded toward your
-            semester total — only weekly tests count.
+          <p className="finish-headline">{pct}%</p>
+          <p className="small">
+            Scored on first-try answers only. Nothing here counts toward your
+            semester total — only weekly tests do.
           </p>
 
-          {missed.length > 0 && (
+          {missed.length > 0 ? (
             <>
-              <h4>Words to review</h4>
+              <h4>
+                {missed.length} to review
+              </h4>
               <ul className="review-list">
-                {missed.map((r, i) => (
-                  <li key={`${r.word.id}-${i}`}>
-                    <strong>{r.word.korean}</strong>
+                {missed.map((r) => (
+                  <li key={r.word.id} className="was-wrong">
+                    <strong lang="ko">{r.word.korean}</strong>
                     <span>{r.word.english}</span>
-                    <span className="small">you wrote: {r.answer || "—"}</span>
+                    <span className="small">
+                      {r.attempts.length === 0
+                        ? "not answered"
+                        : r.attempts
+                            .map((a, i) => `${i + 1}: ${a.text || "(blank)"}${a.correct ? " ✓" : " ✗"}`)
+                            .join(" · ")}
+                    </span>
                   </li>
                 ))}
               </ul>
+
+              <div className="export-block">
+                <div className="export-head">
+                  <h4>Take them with you</h4>
+                  <div className="row-actions">
+                    <select
+                      className="compact-select"
+                      value={separator}
+                      onChange={(e) => setSeparator(e.target.value)}
+                      aria-label="Separator between Korean and English"
+                    >
+                      {SEPARATORS.map((s) => (
+                        <option key={s.key} value={s.key}>
+                          Separator: {s.label}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      className="btn secondary compact"
+                      onClick={async () => {
+                        await navigator.clipboard.writeText(markdown);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 1800);
+                      }}
+                    >
+                      {copied ? "Copied" : "Copy as .md"}
+                    </button>
+                  </div>
+                </div>
+                <textarea
+                  className="export-text"
+                  readOnly
+                  rows={Math.min(12, missed.length + 4)}
+                  value={markdown}
+                  onFocus={(e) => e.currentTarget.select()}
+                  aria-label="Missed words as Markdown"
+                />
+              </div>
             </>
+          ) : (
+            <p>Everything right first time.</p>
           )}
 
-          <div className="answer-form">
-            <button className="btn positive" type="button" onClick={start}>
-              Practice again
-            </button>
-            <button
-              className="btn secondary"
-              type="button"
-              onClick={() => setQuestions(null)}
-            >
-              Change settings
+          <div className="answer-form" style={{ marginTop: 18 }}>
+            <button type="button" className="btn primary" onClick={onExit}>
+              Back to the list
             </button>
           </div>
         </div>
@@ -207,161 +282,122 @@ export function Drill({
     );
   }
 
-  const q = current!;
-  const pct = Math.round((index / questions.length) * 100);
+  if (!question) {
+    return (
+      <p className="small">
+        Nothing to practise in this selection.{" "}
+        <button type="button" className="link-btn" onClick={onExit}>
+          Go back
+        </button>
+      </p>
+    );
+  }
+
+  const prompt = displayValue(question.word, question.questionMode);
+  const expected = answerDisplay(question.word, question.answerMode);
+  const answerIsKorean = question.answerMode === "korean";
+  const mins = Math.floor(secondsLeft / 60);
+  const secs = secondsLeft % 60;
 
   return (
     <article className="quiz-card">
       <div className="exercise-head">
         <div>
-          <span className="kicker">{DIRECTION_LABELS[direction]}</span>
-          <h3>{kind === "grammar" ? "Grammar drill" : "Translation drill"}</h3>
+          <span className="kicker">
+            Question {index + 1} of {questions.length}
+          </span>
+          <h3>{label}</h3>
         </div>
-        <div className="score" aria-live="polite">
-          {score} / {questions.length}
+        <div className={`score ${options.timerMinutes > 0 && secondsLeft < 60 ? "score-low" : ""}`}>
+          {options.timerMinutes > 0
+            ? `${mins}:${String(secs).padStart(2, "0")}`
+            : `${score}`}
         </div>
       </div>
 
       <div className="quiz-body">
         <div className="status-row">
-          <div>
-            Question {index + 1} / {questions.length}
-            {hadWrong && !feedback ? " · retry" : ""}
-          </div>
-          <div className="small">{pool.length} in scope</div>
+          <div>Score {score}</div>
+          <button type="button" className="link-btn" onClick={() => finish(results)}>
+            End practice
+          </button>
         </div>
-
         <div
           className="progress"
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-valuenow={pct}
-          aria-label="Exercise progress"
+          aria-valuenow={Math.round((index / questions.length) * 100)}
+          aria-label="Practice progress"
         >
-          <div className="progress-fill" style={{ width: `${pct}%` }} />
+          <div
+            className="progress-fill"
+            style={{ width: `${Math.round((index / questions.length) * 100)}%` }}
+          />
         </div>
 
         <div className="prompt-label">
-          {q.questionMode === "korean" ? (kind === "grammar" ? "Pattern" : "Korean") : (kind === "grammar" ? "Meaning" : "English")}
+          {question.questionMode === "korean"
+            ? "Korean — answer in English"
+            : "English — answer in Korean"}
         </div>
-        <p className="prompt" lang={q.questionMode === "korean" ? "ko" : "en"}>
-          {displayValue(q.word, q.questionMode)}
+        <p className="prompt" lang={question.questionMode === "korean" ? "ko" : "en"}>
+          {prompt}
         </p>
 
-        <form className="answer-form" onSubmit={check}>
-          <label className="hidden" htmlFor="answer">
-            Your answer in{" "}
-            {q.answerMode === "korean" ? "Korean" : "English"}
-          </label>
-          <input
-            id="answer"
-            ref={inputRef}
-            className="answer-input"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            disabled={!!feedback}
-            autoComplete="off"
-            autoCapitalize="off"
-            spellCheck={false}
-            lang={q.answerMode === "korean" ? "ko" : "en"}
-            placeholder={
-              q.answerMode === "korean" ? (kind === "grammar" ? "패턴을 입력" : "한국어로 입력") : "Type in English"
-            }
-          />
-          {!feedback && (
+        {phase.accepting && (
+          <form className="answer-form" onSubmit={submit}>
+            <label className="hidden" htmlFor="drill-answer">
+              Your answer
+            </label>
+            <input
+              id="drill-answer"
+              ref={inputRef}
+              className="answer-input"
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              lang={answerIsKorean ? "ko" : "en"}
+              placeholder={answerIsKorean ? "한국어로 입력" : "Type in English"}
+            />
             <button className="btn primary" type="submit">
               Check
             </button>
-          )}
-        </form>
-
-        {feedback && (
-          <>
-            <div
-              className={`feedback ${feedback.ok ? "good" : "bad"}`}
-              aria-live="polite"
-            >
-              {feedback.ok ? "✓ " : "✗ "}
-              {feedback.text}{" "}
-              {(!feedback.ok || !retrying) && (
-                <>
-                  Answer: <span className="answer-key">{feedback.key}</span>
-                </>
-              )}
-            </div>
-            <div className="answer-form" style={{ marginTop: 16 }}>
-              <button className="btn positive" type="button" onClick={next}>
-                {retrying ? "Try again" : "Next"}
-              </button>
-            </div>
-          </>
+          </form>
         )}
-      </div>
-    </article>
-  );
-}
 
-function Setup({
-  direction,
-  setDirection,
-  length,
-  setLength,
-  poolSize,
-  kind,
-  onStart,
-}: {
-  direction: Direction;
-  setDirection: (d: Direction) => void;
-  length: number;
-  setLength: (n: number) => void;
-  poolSize: number;
-  kind: "words" | "grammar";
-  onStart: () => void;
-}) {
-  return (
-    <article className="quiz-card">
-      <div className="exercise-head">
-        <div>
-          <span className="kicker">Setup</span>
-          <h3>{kind === "grammar" ? "Grammar drill" : "Translation drill"}</h3>
-        </div>
-      </div>
-      <div className="quiz-body">
-        <div className="mode-row">
-          <span className="mode-label">Direction</span>
-          {DIRECTIONS.map((d) => (
-            <button
-              key={d}
-              type="button"
-              className={`mode-btn ${d === direction ? "active" : ""}`}
-              aria-pressed={d === direction}
-              onClick={() => setDirection(d)}
-            >
-              {DIRECTION_LABELS[d]}
+        {attempts.length > 0 && (
+          <p className={`feedback ${answered ? "good" : "bad"}`} role="status">
+            {answered ? (
+              <>
+                {attempts.length === 1 ? "Correct." : "Correct on retry."}{" "}
+                <span className="answer-key" lang={answerIsKorean ? "ko" : "en"}>
+                  {expected}
+                </span>
+              </>
+            ) : revealed ? (
+              <>
+                Not quite. The answer is{" "}
+                <span className="answer-key" lang={answerIsKorean ? "ko" : "en"}>
+                  {expected}
+                </span>
+                {mustRetry && " — type it to move on."}
+              </>
+            ) : (
+              "Not quite. Try again."
+            )}
+          </p>
+        )}
+
+        {phase.canAdvance && (
+          <div className="answer-form" style={{ marginTop: 14 }}>
+            <button type="button" className="btn primary" onClick={advance}>
+              {index + 1 >= questions.length ? "Finish" : "Next"}
             </button>
-          ))}
-        </div>
-
-        <div className="mode-row">
-          <span className="mode-label">Length</span>
-          {LENGTHS.map((n) => (
-            <button
-              key={n}
-              type="button"
-              className={`mode-btn ${n === length ? "active" : ""}`}
-              aria-pressed={n === length}
-              onClick={() => setLength(n)}
-              disabled={n > poolSize}
-            >
-              {n === 0 ? `All ${poolSize}` : n}
-            </button>
-          ))}
-        </div>
-
-        <button className="btn primary" type="button" onClick={onStart}>
-          Start practice
-        </button>
+          </div>
+        )}
       </div>
     </article>
   );
