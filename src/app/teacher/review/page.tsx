@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireStaff } from "@/lib/session";
-import { flaggedQueue, testsWithFlags } from "@/lib/review";
+import { flaggedQueue, namedTest, testsWithFlags } from "@/lib/review";
 import { ReviewQueue } from "./review-queue";
 
 export const metadata = { title: "Grading queue · hangukeo" };
@@ -19,14 +19,17 @@ export default async function ReviewPage({
   const { test } = await searchParams;
   const only = typeof test === "string" ? test : undefined;
 
-  const [queue, tests] = await Promise.all([
+  const [queue, tests, named] = await Promise.all([
     flaggedQueue(only),
     testsWithFlags(),
+    only ? namedTest(only) : Promise.resolve(null),
   ]);
 
   const answers = queue.length;
   const responses = queue.reduce((n, g) => n + g.students.length, 0);
-  const chosen = tests.find((t) => t.id === only);
+  // A test with nothing waiting is absent from testsWithFlags, which is most
+  // of them now — so the name comes from the test itself, not from the filter.
+  const chosen = named ?? tests.find((t) => t.id === only) ?? null;
 
   return (
     <main className="shell">
@@ -35,7 +38,11 @@ export default async function ReviewPage({
         <h1>Grading queue</h1>
         <p>
           {responses === 0 ? (
-            "Nothing waiting. Every typed answer on every test has been settled."
+            chosen ? (
+              `Nothing waiting on the week ${chosen.weekNumber} test.`
+            ) : (
+              "Nothing waiting. Every typed answer on every test has been settled."
+            )
           ) : (
             <>
               {responses} answer{responses === 1 ? "" : "s"} the grader could
@@ -51,11 +58,16 @@ export default async function ReviewPage({
         <div className="teacher-toolbar">
           <span className="small">
             {chosen
-              ? `Week ${chosen.weekNumber} only.`
+              ? `${chosen.title} only.`
               : "Every test with something waiting."}
           </span>
-          <Link className="btn secondary" href="/teacher/tests">
-            Tests
+          {/* Back to the test this came from, not the list: you got here
+              from one, and that is where the decision belongs. */}
+          <Link
+            className="btn secondary"
+            href={only ? `/teacher/tests/${only}` : "/teacher/tests"}
+          >
+            {chosen ? `Back to week ${chosen.weekNumber}` : "Tests"}
           </Link>
         </div>
 
@@ -84,7 +96,8 @@ export default async function ReviewPage({
             Nothing to do here. Answers land in this queue when a student types
             something the grader cannot match — a synonym, a different phrasing,
             a near miss. Multiple choice never appears, because a wrong option
-            is simply wrong.
+            is simply wrong, which is why a test made entirely of it leaves this
+            screen empty.
           </p>
         ) : (
           <ReviewQueue items={queue} />

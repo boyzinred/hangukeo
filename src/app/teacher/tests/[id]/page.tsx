@@ -85,6 +85,16 @@ export default async function TestPreview({
           <span className={`pill status-${test.status}`}>
             {STATUS_LABEL[test.status]}
           </span>
+          {(test.status === "published" || test.status === "closed") && (
+            <Link
+              className={`btn ${test.flaggedCount > 0 ? "positive" : "secondary"}`}
+              href={`/teacher/review?test=${test.id}`}
+            >
+              {test.flaggedCount > 0
+                ? `Review ${test.flaggedCount} answer${test.flaggedCount === 1 ? "" : "s"}`
+                : "Review answers"}
+            </Link>
+          )}
           <Link className="btn secondary" href="/teacher/tests">
             All weeks
           </Link>

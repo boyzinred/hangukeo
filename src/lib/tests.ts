@@ -102,6 +102,8 @@ export type TestDetail = {
   createdAt: Date;
   attemptCount: number;
   submittedCount: number;
+  /** Typed answers on this test still waiting on a person. */
+  flaggedCount: number;
   questions: PreviewQuestion[];
 };
 
@@ -152,6 +154,17 @@ export async function testDetail(testId: string): Promise<TestDetail | null> {
     .from(attempts)
     .where(eq(attempts.testId, testId));
 
+  const [{ flaggedCount }] = await db
+    .select({
+      flaggedCount: sql<number>`(
+        select count(*) from responses r
+        join attempts a on a.id = r.attempt_id
+        where a.test_id = ${testId} and r.needs_review
+      )::int`,
+    })
+    .from(tests)
+    .where(eq(tests.id, testId));
+
   return {
     id: row.test.id,
     title: row.test.title,
@@ -168,6 +181,7 @@ export async function testDetail(testId: string): Promise<TestDetail | null> {
     createdAt: row.test.createdAt,
     attemptCount: counts?.attemptCount ?? 0,
     submittedCount: counts?.submittedCount ?? 0,
+    flaggedCount,
     questions: qs.map((q) => {
       const v = q.vocabId ? vocabById.get(q.vocabId) : undefined;
       const g = q.grammarId ? grammarById.get(q.grammarId) : undefined;

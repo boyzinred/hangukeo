@@ -36,6 +36,12 @@ export async function UserIdentity() {
  * Navigation, by role. Bank and Practice are a student's own screens, so a
  * teacher who is not also a student has no use for them and does not see them
  * — they are still reachable by URL for previewing what a student gets.
+ *
+ * Only the two places staff actually start from. People lives on Class and
+ * reviewing lives on the test it belongs to, because both are things you go to
+ * *about* something — a roster you are looking at, a test that has gone out —
+ * rather than destinations in their own right. Five top-level links made the
+ * two that matter harder to find.
  */
 export async function UserNav() {
   const me = await currentSession();
@@ -74,15 +80,7 @@ export async function UserNav() {
           <Link className="header-link" href="/teacher/tests">
             Tests
           </Link>
-          <Link className="header-link" href="/teacher/review">
-            Review
-          </Link>
         </>
-      )}
-      {me.isTeacher && (
-        <Link className="header-link" href="/teacher/people">
-          People
-        </Link>
       )}
       {real?.isAdmin && (
         <Link className="header-link" href="/admin">

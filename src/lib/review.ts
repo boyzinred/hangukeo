@@ -233,6 +233,22 @@ export async function flaggedTotal(): Promise<number> {
   return rows.length;
 }
 
+/** One test, named — for the queue's heading when it is filtered to a test
+ * that has nothing waiting and so is absent from `testsWithFlags`. */
+export async function namedTest(testId: string) {
+  const [row] = await db
+    .select({
+      id: tests.id,
+      title: tests.title,
+      weekNumber: weekPlans.weekNumber,
+    })
+    .from(tests)
+    .innerJoin(weekPlans, eq(weekPlans.id, tests.weekPlanId))
+    .where(eq(tests.id, testId))
+    .limit(1);
+  return row ?? null;
+}
+
 /** Tests that have something waiting, for the queue's filter. */
 export async function testsWithFlags() {
   const rows = await db

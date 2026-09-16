@@ -1756,3 +1756,20 @@ html[data-theme="dark"] .choice.chosen {
     padding: 10px 16px;
   }
 }
+
+/* The way into People, on the class screen rather than the header. It has to
+   carry its own weight there, so it states what it is for and what it holds. */
+.entry-panel {
+  margin-bottom: 18px;
+}
+.entry-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.entry-body p {
+  margin: 0;
+  flex: 1 1 320px;
+}

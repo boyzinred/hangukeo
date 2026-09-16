@@ -16,6 +16,11 @@ const STATUS_LABEL: Record<string, string> = {
   closed: "Closed",
 };
 
+/** Has this test been in front of students? */
+function isOut(status: string | null): boolean {
+  return status === "published" || status === "closed";
+}
+
 type Spec = {
   vocabNew?: number;
   vocabReview?: number;
@@ -121,14 +126,7 @@ export default async function TeacherTests() {
                           {w.submittedCount} of {w.attemptCount} submitted
                         </>
                       )}
-                      {w.flaggedCount > 0 && (
-                        <>
-                          {" · "}
-                          <Link href={`/teacher/review?test=${w.testId}`}>
-                            <strong>{w.flaggedCount} answers waiting</strong>
-                          </Link>
-                        </>
-                      )}
+
                     </p>
                     <div className="row-actions">
                       <Link
@@ -139,6 +137,18 @@ export default async function TeacherTests() {
                           ? "Read and publish"
                           : "Read the test"}
                       </Link>
+                      {/* Only once it has gone out: there is nothing to review
+                          on a test nobody has sat. */}
+                      {isOut(w.status) && (
+                        <Link
+                          className={`btn compact ${w.flaggedCount > 0 ? "positive" : "secondary"}`}
+                          href={`/teacher/review?test=${w.testId}`}
+                        >
+                          {w.flaggedCount > 0
+                            ? `Review ${w.flaggedCount} answer${w.flaggedCount === 1 ? "" : "s"}`
+                            : "Review answers"}
+                        </Link>
+                      )}
                     </div>
                   </>
                 ) : (

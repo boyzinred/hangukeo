@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { asc } from "drizzle-orm";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 import { settings } from "@/lib/auth";
 import { requireStaff } from "@/lib/session";
 import { plannedWeekCount } from "@/lib/bank";
@@ -7,11 +10,36 @@ import { cohortProgress, paceTarget, type StudentProgress } from "@/lib/progress
 
 export const metadata = { title: "Teacher · hangukeo" };
 
+/** "22 accounts · 2 teachers, 4 TAs, 16 students · 19 never signed in" */
+function rosterSummary(
+  roster: { roles: string[]; lastSignInAt: Date | null }[],
+): string {
+  const n = (role: string) => roster.filter((r) => r.roles.includes(role)).length;
+  const plural = (count: number, one: string, many = `${one}s`) =>
+    `${count} ${count === 1 ? one : many}`;
+
+  const never = roster.filter((r) => !r.lastSignInAt).length;
+  return [
+    plural(roster.length, "account"),
+    [plural(n("teacher"), "teacher"), plural(n("ta"), "TA"), plural(n("student"), "student")].join(", "),
+    ...(never > 0 ? [`${never} never signed in`] : []),
+  ].join(" · ");
+}
+
 export default async function TeacherHome() {
   const [me, s] = await Promise.all([requireStaff(), settings()]);
   const totalWeeks = await plannedWeekCount();
   const week = weekNumberFor(new Date(), s.termStart, totalWeeks);
   const students = await cohortProgress();
+
+  // Only for the panel below, and only fetched for a teacher, who is the only
+  // person it is shown to.
+  const roster = me.isTeacher
+    ? await db
+        .select({ roles: users.roles, lastSignInAt: users.lastSignInAt })
+        .from(users)
+        .orderBy(asc(users.id))
+    : [];
 
   // Pace is measured against studied, the number that tracks the 1,500 goal.
   const target = paceTarget(s.vocabGoal, week, totalWeeks);
@@ -55,11 +83,26 @@ export default async function TeacherHome() {
           </p>
         </div>
 
+        {me.isTeacher && (
+          <div className="panel entry-panel">
+            <div className="panel-head">
+              <h2>People &amp; accounts</h2>
+              <span className="small">{rosterSummary(roster)}</span>
+            </div>
+            <div className="panel-body entry-body">
+              <p className="small">
+                Create accounts and issue passwords, promote a student to TA,
+                assign teams, or remove someone and everything they produced.
+              </p>
+              <Link className="btn primary" href="/teacher/people">
+                Manage people
+              </Link>
+            </div>
+          </div>
+        )}
+
         <div className="teacher-toolbar">
           <span className="small">Click a student for their detail.</span>
-          <Link className="btn secondary" href="/teacher/people">
-            People &amp; invites
-          </Link>
         </div>
 
         <div className="student-grid">
