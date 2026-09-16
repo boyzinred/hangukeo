@@ -33,9 +33,9 @@ export async function UserIdentity() {
 }
 
 /**
- * Navigation, by role. Bank and Practice are a student's own screens, so a
- * teacher who is not also a student has no use for them and does not see them
- * — they are still reachable by URL for previewing what a student gets.
+ * Navigation, by role. Home, Vocabulary and Tests are a student's own screens,
+ * so a teacher who is not also a student has no use for them and does not see
+ * them — they are still reachable by URL for previewing what a student gets.
  *
  * Only the two places staff actually start from. People lives on Class and
  * reviewing lives on the test it belongs to, because both are things you go to
@@ -61,14 +61,14 @@ export async function UserNav() {
     <>
       {me.isStudent && (
         <>
-          <Link className="header-link" href="/bank">
-            Bank
+          <Link className="header-link" href="/">
+            Home
           </Link>
-          <Link className="header-link" href="/practice">
-            Practice
+          <Link className="header-link" href="/vocabulary">
+            Vocabulary
           </Link>
           <Link className="header-link" href="/test">
-            Test
+            Tests
           </Link>
         </>
       )}

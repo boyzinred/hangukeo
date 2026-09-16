@@ -21,6 +21,7 @@
     "db:check:schema:cloud": "tsx --conditions=react-server --env-file=.env.cloud.local src/db/check-schema.ts",
     "build:corpus": "tsx --conditions=react-server scripts/build-corpus.ts",
     "db:seed:demo": "tsx --conditions=react-server --env-file=.env.local src/db/seed-demo.ts",
+    "db:demo": "npm run db:seed:demo && npm run test:import -- --week 3 --apply",
     "check:practice": "tsx --conditions=react-server --env-file=.env.local src/db/check-practice.ts",
     "check:auth": "tsx --conditions=react-server --env-file=.env.local src/db/check-auth.ts",
     "db:seed:auth": "tsx --conditions=react-server --env-file=.env.local src/db/seed-auth.ts",

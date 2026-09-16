@@ -33,7 +33,13 @@ export async function viewAs(userId: string): Promise<void> {
 
   // Land wherever that person's own work lives, which is the point of looking.
   const roles = target.roles as string[];
-  redirect(roles.includes("student") ? "/bank" : roles.includes("teacher") || roles.includes("ta") ? "/teacher/home" : "/");
+  redirect(
+    roles.includes("student")
+      ? "/"
+      : roles.includes("teacher") || roles.includes("ta")
+        ? "/teacher/home"
+        : "/",
+  );
 }
 
 export async function stopViewing(): Promise<void> {

@@ -1773,3 +1773,286 @@ html[data-theme="dark"] .choice.chosen {
   margin: 0;
   flex: 1 1 320px;
 }
+
+/* ------------------------------------------------- vocabulary & dashboard */
+
+.stat-note {
+  display: block;
+  opacity: 0.7;
+}
+
+.vocab-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.vocab-search {
+  flex: 1 1 260px;
+  min-height: 44px;
+  min-width: 0;
+}
+
+/* Jump list: 1,500 words is a lot of scrolling, and the sections are the
+   only structure a student actually navigates by. */
+.jump-card {
+  padding: 14px 18px;
+  margin: 14px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-muted);
+  color: var(--surface-text);
+}
+.jump-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.jump-link {
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--surface-text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+}
+.jump-link:hover,
+.jump-link:focus-visible {
+  background: var(--primary);
+}
+
+.vocab-section {
+  margin: 10px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  scroll-margin-top: 80px;
+}
+.vocab-section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  background: var(--surface-muted);
+}
+.vocab-pick {
+  flex: 0 0 auto;
+  margin: 0;
+}
+.vocab-section-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  text-align: left;
+  color: var(--surface-text);
+  cursor: pointer;
+}
+.vocab-section-toggle h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.vocab-chevron {
+  margin-left: auto;
+  font-size: 1.3rem;
+  font-weight: 700;
+  opacity: 0.6;
+}
+
+.vocab-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.vocab-table th,
+.vocab-table td {
+  padding: 8px 14px;
+  text-align: left;
+  border-top: 1px solid var(--border);
+  vertical-align: middle;
+}
+.vocab-table th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.65;
+}
+.vocab-table .hangul {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.roman {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Covering a column turns the list into a self-test. Revealed on hover and on
+   focus, so it works from the keyboard as well as the mouse. */
+.covered {
+  background: currentColor;
+  border-radius: 3px;
+  transition: var(--transition);
+}
+.covered:hover,
+.covered:focus-visible,
+td:hover > .covered {
+  background: transparent;
+}
+
+.studied-mark {
+  font-weight: 800;
+  color: var(--muted-strong);
+}
+.studied-mark.is-blank {
+  opacity: 0.3;
+  color: inherit;
+}
+.studied-pill {
+  margin-left: 8px;
+}
+
+/* --- the student dashboard --- */
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+.dash-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+/* Only the card that can be urgent ever looks it. */
+.dash-card.is-urgent {
+  border-color: var(--accent);
+  border-width: 2px;
+}
+.dash-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+.dash-head h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+.dash-lead {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+.dash-pct {
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0.7;
+}
+.dash-card p {
+  margin: 0;
+}
+.dash-card .progress,
+.dash-card .pace-track {
+  width: 100%;
+}
+.dash-figures {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+}
+.dash-figures dt {
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+.dash-figures dd {
+  margin: 2px 0 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.day-strip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+.day-strip li {
+  display: grid;
+  grid-template-columns: 4em 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+.day-label {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+.day-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  overflow: hidden;
+}
+.day-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--secondary);
+}
+.day-strip li.is-done .day-bar > span {
+  background: var(--muted-strong);
+}
+
+.missed-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  width: 100%;
+}
+.missed-list li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 5px 10px;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  color: var(--surface-text);
+}
+.missed-list li span:first-child {
+  font-weight: 700;
+}
+
+@media (max-width: 560px) {
+  .vocab-table th:nth-child(4),
+  .vocab-table td:nth-child(4) {
+    display: none;
+  }
+  .dash-figures {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -94,7 +94,7 @@ async function main() {
 
   const s = await signIn(username, account.password);
   expect("can sign in", s.ok);
-  expect("reaches /bank as a student", (await get("/bank", s.cookies)) === 200);
+  expect("reaches /vocabulary as a student", (await get("/vocabulary", s.cookies)) === 200);
   expect("reaches /teacher/home as a TA", (await get("/teacher/home", s.cookies)) === 200);
   expect(
     "still blocked from /teacher/people",

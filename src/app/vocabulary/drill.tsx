@@ -23,7 +23,7 @@ type Result = {
   answer: string;
 };
 
-export function PracticeRunner({
+export function Drill({
   pool,
   kind = "words",
   scope,

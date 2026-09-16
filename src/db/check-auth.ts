@@ -82,8 +82,8 @@ async function main() {
   expect("accepts good usernames", isValidUsername("yuna.kim-2"));
 
   console.log("\nsigned out");
-  const anon = await get("/bank", "");
-  expect("/bank redirects to /login", anon.location.includes("/login"), anon.location);
+  const anon = await get("/vocabulary", "");
+  expect("/vocabulary redirects to /login", anon.location.includes("/login"), anon.location);
   expect("/login is reachable", (await get("/login", "")).status === 200);
 
   console.log("\nwrong password");
@@ -93,14 +93,14 @@ async function main() {
   console.log("\nteacher");
   const teacher = await signIn("seonsaengnim", DEV_PASSWORD);
   expect("signed in", teacher.ok);
-  expect("/bank allowed", (await get("/bank", teacher.cookies)).status === 200);
+  expect("/vocabulary allowed", (await get("/vocabulary", teacher.cookies)).status === 200);
   expect("/teacher/home allowed", (await get("/teacher/home", teacher.cookies)).status === 200);
   expect("/teacher/people allowed", (await get("/teacher/people", teacher.cookies)).status === 200);
 
   console.log("\nstudent");
   const student = await signIn("yuna", DEV_PASSWORD);
   expect("signed in", student.ok);
-  expect("/bank allowed", (await get("/bank", student.cookies)).status === 200);
+  expect("/vocabulary allowed", (await get("/vocabulary", student.cookies)).status === 200);
   const sHome = await get("/teacher/home", student.cookies);
   expect("/teacher/home blocked", sHome.status === 307 && !sHome.location.includes("/teacher"), `${sHome.status} -> ${sHome.location}`);
   const sPeople = await get("/teacher/people", student.cookies);
@@ -121,7 +121,7 @@ async function main() {
   expect("password issued", /^[a-z-]+\d{2}$/.test(account.password), account.password);
   const created = await signIn(username, account.password);
   expect("new account can sign in", created.ok);
-  expect("and reaches /bank", (await get("/bank", created.cookies)).status === 200);
+  expect("and reaches /vocabulary", (await get("/vocabulary", created.cookies)).status === 200);
 
   const dupe = await createAccount({
     username,
