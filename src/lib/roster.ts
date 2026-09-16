@@ -3,12 +3,13 @@ import "server-only";
 import { asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { teamMembers, teams, users } from "@/db/schema";
+import type { Role } from "@/db/schema";
 
 export type RosterRow = {
   id: string;
   displayName: string;
   username: string;
-  roles: ("student" | "ta" | "teacher")[];
+  roles: Role[];
   teamId: string | null;
   teamName: string | null;
   lastSignInAt: Date | null;

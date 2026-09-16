@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { requireTeacher } from "@/lib/session";
+import { refuseWhileViewing, requireTeacher } from "@/lib/session";
 import {
   accountImpact,
   applyRolesAndTeam,
@@ -24,7 +24,9 @@ import {
 
 export type { AccountImpact };
 
-export type Role = "student" | "ta" | "teacher";
+// Re-exported so the client components keep one import site.
+import type { Role } from "@/db/schema";
+export type { Role };
 const ALL_ROLES: Role[] = ["student", "ta", "teacher"];
 
 export type ActionResult =
@@ -41,6 +43,7 @@ export async function createStudentAccount(
   formData: FormData,
 ): Promise<ActionResult> {
   await requireTeacher();
+  await refuseWhileViewing("Creating an account");
 
   const displayName = String(formData.get("displayName") ?? "").trim();
   const username = String(formData.get("username") ?? "").trim().toLowerCase();
@@ -76,6 +79,7 @@ export async function resetUserPassword(
   formData: FormData,
 ): Promise<ActionResult> {
   const me = await requireTeacher();
+  await refuseWhileViewing("Resetting a password");
   const userId = String(formData.get("userId") ?? "");
 
   try {
@@ -107,7 +111,8 @@ export async function fetchAccountImpact(userId: string) {
 /**
  * Deletes a person and everything they produced.
  *
- * Guarded three ways, because this is the only irreversible action in the app:
+ * Guarded four ways, because this is the only irreversible action in the app:
+ * it is refused outright while an admin is viewing as somebody else, and then
  * the caller must be a teacher, must not be deleting themselves, must not be
  * removing the last teacher, and must retype the username exactly. The typed
  * confirmation is the one that actually stops a misclick.
@@ -116,6 +121,7 @@ export async function deleteUserAccount(
   formData: FormData,
 ): Promise<ActionResult> {
   const me = await requireTeacher();
+  await refuseWhileViewing("Deleting an account");
   const userId = String(formData.get("userId") ?? "");
   const confirmation = String(formData.get("confirm") ?? "").trim();
 
@@ -165,6 +171,7 @@ export async function deleteUserAccount(
  */
 export async function setRoles(formData: FormData): Promise<ActionResult> {
   const me = await requireTeacher();
+  await refuseWhileViewing("Changing roles");
   const userId = String(formData.get("userId") ?? "");
   const roles = formData.getAll("roles").map(String) as Role[];
   const teamId = String(formData.get("teamId") ?? "");

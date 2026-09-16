@@ -4,6 +4,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { FloatingControls } from "@/components/floating-controls";
 import { UserIdentity, UserNav } from "@/components/user-chip";
+import { ViewingBanner } from "@/components/viewing-banner";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
+        <ViewingBanner />
         <header className="site-header">
           <div className="header-inner">
             <div className="header-brand">

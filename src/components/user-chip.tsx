@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
-import { currentSession } from "@/lib/session";
+import { currentSession, realSession, viewingAs } from "@/lib/session";
 
 /**
  * Header identity, shown beside the brand. `currentSession` is memoised per
@@ -9,9 +9,17 @@ import { currentSession } from "@/lib/session";
 export async function UserIdentity() {
   const me = await currentSession();
   if (!me) return null;
+  const viewing = await viewingAs();
 
   return (
-    <span className="header-user" title={me.username}>
+    <span
+      className={`header-user ${viewing ? "is-viewing" : ""}`}
+      title={
+        viewing
+          ? `${me.username} — viewed by ${viewing.admin.username}`
+          : me.username
+      }
+    >
       <span className="header-user-name">{me.displayName}</span>
       <span className="pill-stack">
         {me.roles.map((r) => (
@@ -31,6 +39,9 @@ export async function UserIdentity() {
  */
 export async function UserNav() {
   const me = await currentSession();
+  // The Admin link follows the real account, not the viewed one: an admin
+  // reading a student's screen still needs the way back.
+  const real = await realSession();
 
   if (!me) {
     return (
@@ -71,6 +82,11 @@ export async function UserNav() {
       {me.isTeacher && (
         <Link className="header-link" href="/teacher/people">
           People
+        </Link>
+      )}
+      {real?.isAdmin && (
+        <Link className="header-link" href="/admin">
+          Admin
         </Link>
       )}
       <form action={signOut}>

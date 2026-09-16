@@ -12,6 +12,7 @@ import {
   weekPlanGrammar,
   weekPlanVocab,
   weekPlans,
+  type Role,
 } from "./schema";
 import { buildSemesterPlan } from "../lib/plan";
 import { syntheticEmail } from "../lib/password";
@@ -111,7 +112,7 @@ async function main() {
   // Roster rows only. Sign-in accounts need the Supabase admin API, so they
   // are created by `npm run db:seed:auth`, which is a separate step precisely
   // because it needs the service key and this script does not.
-  const row = (name: string, roles: ("student" | "ta" | "teacher")[], i = 0) => ({
+  const row = (name: string, roles: Role[], i = 0) => ({
     username: name.toLowerCase().replace(/[^a-z0-9]/g, ""),
     email: syntheticEmail(name.toLowerCase().replace(/[^a-z0-9]/g, "")),
     displayName: name,

@@ -16,7 +16,11 @@ const ROLE_LABEL: Record<Role, string> = {
   teacher: "Teacher",
   ta: "TA",
   student: "Student",
+  admin: "Admin",
 };
+// Admin is absent on purpose: it is support access to every account, not a
+// classroom role, so it is granted from the command line rather than from a
+// dropdown on the roster.
 const ALL_ROLES: Role[] = ["student", "ta", "teacher"];
 
 type Panel =

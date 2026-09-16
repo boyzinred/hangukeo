@@ -31,7 +31,8 @@
     "test:brief": "tsx --conditions=react-server --env-file=.env.local src/db/test-brief.ts",
     "test:import": "tsx --conditions=react-server --env-file=.env.local src/db/test-import.ts",
     "check:import": "tsx --conditions=react-server --env-file=.env.local src/db/check-import.ts",
-    "check:review": "tsx --conditions=react-server --env-file=.env.local src/db/check-review.ts"
+    "check:review": "tsx --conditions=react-server --env-file=.env.local src/db/check-review.ts",
+    "check:admin": "tsx --conditions=react-server --env-file=.env.local src/db/check-admin.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

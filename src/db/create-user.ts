@@ -14,7 +14,7 @@
  */
 import { asc, eq, sql } from "drizzle-orm";
 import { db } from "./index";
-import { teams, users } from "./schema";
+import { roleEnum, teams, users, type Role } from "./schema";
 import { availableUsername, createAccount } from "../lib/accounts";
 
 function arg(name: string): string | undefined {
@@ -26,16 +26,16 @@ async function main() {
   const displayName = arg("name");
   const roles = (arg("roles") ?? arg("role") ?? "student")
     .split(",")
-    .map((r) => r.trim()) as ("student" | "ta" | "teacher")[];
+    .map((r) => r.trim()) as Role[];
   const teamName = arg("team");
 
   if (!displayName) {
     console.error(
-      'Usage: npm run user:create -- --name "Display Name" [--username x] [--role student|ta|teacher] [--team "Team 1"]',
+      'Usage: npm run user:create -- --name "Display Name" [--username x] [--role student|ta|teacher|admin] [--team "Team 1"]',
     );
     process.exit(1);
   }
-  const bad = roles.filter((r) => !["student", "ta", "teacher"].includes(r));
+  const bad = roles.filter((r) => !roleEnum.enumValues.includes(r));
   if (bad.length) {
     console.error(`Unknown role(s): ${bad.join(", ")}.`);
     process.exit(1);

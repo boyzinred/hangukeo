@@ -1655,3 +1655,104 @@ html[data-theme="dark"] .choice.chosen {
     margin-top: 8px;
   }
 }
+
+/* ------------------------------------------------------------ admin */
+
+/* Deliberately loud, and above the header rather than inside it. The failure
+   this prevents is an admin forgetting whose screen they are reading, so a
+   tasteful indicator would be worse than none — it would look like the
+   question had been handled. */
+.viewing-banner {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 24px;
+  background: #b3261e;
+  color: #fff;
+  border-bottom: 2px solid #7d1a15;
+}
+.viewing-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+.viewing-who {
+  font-weight: 400;
+  opacity: 0.9;
+}
+.viewing-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.viewing-actions .btn.secondary {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+.viewing-actions .btn.primary {
+  background: #fff;
+  color: #7d1a15;
+}
+.header-user.is-viewing {
+  outline: 2px solid #b3261e;
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+.pill-admin {
+  background: #b3261e;
+  color: #fff;
+}
+
+.admin-search {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.admin-list {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.admin-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) max-content;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.admin-row.is-viewing {
+  border-color: #b3261e;
+  border-width: 2px;
+}
+.admin-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.admin-facts {
+  opacity: 0.75;
+}
+
+@media (max-width: 720px) {
+  .admin-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .viewing-banner {
+    padding: 10px 16px;
+  }
+}

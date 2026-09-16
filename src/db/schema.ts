@@ -13,7 +13,25 @@ import {
   primaryKey,
 } from "drizzle-orm/pg-core";
 
-export const roleEnum = pgEnum("role", ["student", "ta", "teacher"]);
+export const roleEnum = pgEnum("role", [
+  "student",
+  "ta",
+  "teacher",
+  /**
+   * Support, not seniority. An admin sees every account and can browse the
+   * site as any of them to find out what a person is actually looking at.
+   * Deliberately not a superset of teacher: the teacher screens are reached by
+   * viewing as a teacher, which keeps the act visible rather than silent.
+   */
+  "admin",
+]);
+
+/**
+ * The canonical role union, derived from the enum rather than restated.
+ * Adding a role above reaches every consumer; the literal used to be written
+ * out in six places and adding "admin" broke five of them.
+ */
+export type Role = (typeof roleEnum.enumValues)[number];
 export const itemKindEnum = pgEnum("item_kind", ["vocab", "grammar"]);
 export const questionFormatEnum = pgEnum("question_format", [
   "ko_to_en_typed",

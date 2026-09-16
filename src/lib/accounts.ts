@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { teamMembers, teams, users } from "@/db/schema";
+import type { Role } from "@/db/schema";
 import {
   generatePassword,
   isValidUsername,
@@ -56,7 +57,7 @@ export async function availableUsername(displayName: string): Promise<string> {
 export async function createAccount(input: {
   username: string;
   displayName: string;
-  roles: ("student" | "ta" | "teacher")[];
+  roles: Role[];
   teamId?: string | null;
 }): Promise<CreatedAccount> {
   const username = input.username.trim().toLowerCase();
@@ -146,7 +147,7 @@ export async function resetPassword(userId: string): Promise<string> {
  */
 export async function applyRolesAndTeam(
   userId: string,
-  roles: ("student" | "ta" | "teacher")[],
+  roles: Role[],
   teamId?: string | null,
 ): Promise<{ displayName: string; teamName: string | null }> {
   if (roles.length === 0) throw new Error("Pick at least one role.");
@@ -194,7 +195,7 @@ export async function applyRolesAndTeam(
 export type AccountImpact = {
   displayName: string;
   username: string;
-  roles: ("student" | "ta" | "teacher")[];
+  roles: Role[];
   testAttempts: number;
   testAnswers: number;
   practiceRuns: number;
