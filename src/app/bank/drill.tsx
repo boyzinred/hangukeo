@@ -8,6 +8,7 @@ import {
   buildQuestions,
   displayValue,
   isCorrect,
+  sentenceMatches,
   type Mode,
   type Question,
   type QuizWord,
@@ -53,12 +54,21 @@ export function Drill({
   options,
   label,
   kind = "words",
+  /** Sentences are graded whole and ignore punctuation as well as spacing. */
+  asSentences = false,
+  /**
+   * What a practice row is recorded against. A sentence's own id is unique to
+   * the sentence, but what the student practised is the pattern behind it.
+   */
+  outcomeId,
   onExit,
 }: {
   pool: QuizWord[];
   options: DrillOptions;
   label: string;
   kind?: "words" | "grammar";
+  asSentences?: boolean;
+  outcomeId?: (word: QuizWord) => string;
   onExit: () => void;
 }) {
   const questions = useMemo(
@@ -106,13 +116,13 @@ export function Drill({
         direction: `${options.questionMode}_to_${options.answerMode}`,
         scope: { label, asked: final.length },
         outcomes: final.map((r) => ({
-          itemId: r.word.id,
+          itemId: outcomeId ? outcomeId(r.word) : r.word.id,
           firstTry: r.firstTry,
           isCorrect: r.attempts.some((a) => a.correct),
         })),
       });
     },
-    [kind, label, options.questionMode, options.answerMode],
+    [kind, label, options.questionMode, options.answerMode, outcomeId],
   );
 
   // The countdown owns its own end: reaching zero finishes the run wherever
@@ -142,13 +152,15 @@ export function Drill({
     const text = typed.trim();
     if (!text) return;
 
-    const right = isCorrect(
-      pool,
-      question.word,
-      question.questionMode,
-      question.answerMode,
-      text,
-    );
+    const right = asSentences
+      ? sentenceMatches(answerDisplay(question.word, question.answerMode), text)
+      : isCorrect(
+          pool,
+          question.word,
+          question.questionMode,
+          question.answerMode,
+          text,
+        );
     const next = [...attempts, { text, correct: right }];
     setAttempts(next);
     setTyped("");
@@ -337,11 +349,16 @@ export function Drill({
         </div>
 
         <div className="prompt-label">
-          {question.questionMode === "korean"
-            ? "Korean — answer in English"
-            : "English — answer in Korean"}
+          {asSentences
+            ? "Translate into Korean"
+            : question.questionMode === "korean"
+              ? "Korean — answer in English"
+              : "English — answer in Korean"}
         </div>
-        <p className="prompt" lang={question.questionMode === "korean" ? "ko" : "en"}>
+        <p
+          className={`prompt ${asSentences ? "is-sentence" : ""}`}
+          lang={question.questionMode === "korean" ? "ko" : "en"}
+        >
           {prompt}
         </p>
 
@@ -360,7 +377,13 @@ export function Drill({
               autoCapitalize="off"
               spellCheck={false}
               lang={answerIsKorean ? "ko" : "en"}
-              placeholder={answerIsKorean ? "한국어로 입력" : "Type in English"}
+              placeholder={
+                asSentences
+                  ? "Type the whole sentence in Korean"
+                  : answerIsKorean
+                    ? "한국어로 입력"
+                    : "Type in English"
+              }
             />
             <button className="btn primary" type="submit">
               Check

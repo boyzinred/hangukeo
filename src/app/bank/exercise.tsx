@@ -32,6 +32,10 @@ export function Exercise({
   koreanLabel = "Korean",
   englishLabel = "English",
   unit = "word",
+  /** Whole-sentence translation: graded loosely, and always English → Korean. */
+  asSentences = false,
+  outcomeId,
+  emptyNote,
 }: {
   title: string;
   kicker: string;
@@ -44,6 +48,10 @@ export function Exercise({
   koreanLabel?: string;
   englishLabel?: string;
   unit?: string;
+  asSentences?: boolean;
+  outcomeId?: (item: QuizWord) => string;
+  /** Shown instead of the Start row when the selection yields nothing. */
+  emptyNote?: string;
 }) {
   // English → Korean by default: recall is the direction that fails first, and
   // the one the writing paper needs.
@@ -81,6 +89,8 @@ export function Exercise({
         options={running.options}
         label={running.label}
         kind={kind}
+        asSentences={asSentences}
+        outcomeId={outcomeId}
         onExit={() => setRunning(null)}
       />
     );
@@ -136,10 +146,12 @@ export function Exercise({
           <select
             value={questionMode}
             onChange={(e) => setDirection(e.target.value as Mode)}
+            disabled={asSentences}
           >
             <option value="english">{englishLabel}</option>
             <option value="korean">{koreanLabel}</option>
           </select>
+          {asSentences && <small>Sentences run one way</small>}
         </label>
 
         <label>
@@ -187,6 +199,8 @@ export function Exercise({
           </span>
         </label>
       </div>
+
+      {willAsk === 0 && emptyNote && <p className="small">{emptyNote}</p>}
 
       <div className="exercise-actions">
         <span className={`menu-summary ${willAsk === 0 ? "is-empty" : ""}`}>

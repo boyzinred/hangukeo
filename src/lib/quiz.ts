@@ -38,6 +38,26 @@ export function normalizeKorean(text: string): string {
   return String(text ?? "").replace(/\s+/g, "").trim();
 }
 
+/**
+ * A whole sentence, compared without spacing or punctuation.
+ *
+ * Word answers can afford to keep punctuation because they rarely have any. A
+ * sentence always ends in a full stop in the corpus and almost never does when
+ * a student types it, and failing someone over a missing period would teach
+ * them to watch the wrong thing.
+ */
+export function normalizeSentence(text: string): string {
+  return String(text ?? "")
+    .replace(/[.,!?;:·…~'"“”‘’()[\]{}]/g, "")
+    .replace(/\s+/g, "")
+    .trim();
+}
+
+export function sentenceMatches(expected: string, given: string): boolean {
+  const g = normalizeSentence(given);
+  return g.length > 0 && g === normalizeSentence(expected);
+}
+
 export function normalizeByMode(value: string, mode: Mode): string {
   return mode === "english" ? normalizeEnglish(value) : normalizeKorean(value);
 }

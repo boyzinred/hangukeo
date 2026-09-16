@@ -160,20 +160,34 @@ export function BankView({
     [grammarWeeks],
   );
 
+  /**
+   * Sentences for the chosen weeks, one question each.
+   *
+   * Practising a pattern means producing it, not naming it: a student who can
+   * say "-지만 means but" and cannot build a sentence with it has learned a
+   * label. Each example the corpus carries becomes an English sentence to put
+   * back into Korean, and the run is recorded against the pattern rather than
+   * the sentence, so a week of drilling moves the pattern's studied mark.
+   */
   const grammarFor = useMemo(() => {
     return (keys: Set<string>): QuizWord[] =>
       grammar
         .filter((g) => keys.has(String(g.weekNumber)))
-        .map((g) => ({
-          id: g.id,
-          // The pattern stands in for the Korean side and its name for the
-          // English; the full meaning is accepted too, so a student who writes
-          // out what it does is not marked wrong for being thorough.
-          korean: g.form,
-          english: g.name,
-          acceptedAnswers: [g.name, g.meaning],
-        }));
+        .flatMap((g) =>
+          g.examples.map((e, i) => ({
+            id: `${g.id}#${i}`,
+            korean: e.ko,
+            english: e.en,
+            acceptedAnswers: [e.ko],
+          })),
+        );
   }, [grammar]);
+
+  /** "g1-g17#2" is a sentence; the thing practised is "g1-g17". */
+  const grammarOutcomeId = useMemo(
+    () => (item: QuizWord) => item.id.split("#")[0],
+    [],
+  );
 
   const wordsIn = useMemo(() => {
     return (keys: Set<string>): BankWord[] => {
@@ -223,6 +237,9 @@ export function BankView({
   const studiedThisWeek = thisWeekWords.filter((w) => studied.has(w.id)).length;
   const pickedCount = wordsIn(picked).length;
   const pickedGrammarCount = grammarFor(pickedGrammar).length;
+  const pickedGrammarPatterns = grammar.filter((g) =>
+    pickedGrammar.has(String(g.weekNumber)),
+  ).length;
 
   return (
     <>
@@ -241,22 +258,34 @@ export function BankView({
         />
       </div>
 
-      <div className="mode-row tab-row">
+      {/* Two halves of one bank, so they read as two doors rather than as a
+          filter someone might not notice they had set. */}
+      <div className="bank-tabs" role="tablist" aria-label="Bank">
         <button
           type="button"
-          className={`mode-btn ${tab === "words" ? "active" : ""}`}
-          aria-pressed={tab === "words"}
+          role="tab"
+          className={`bank-tab ${tab === "words" ? "active" : ""}`}
+          aria-selected={tab === "words"}
           onClick={() => setTab("words")}
         >
-          Words ({words.length})
+          <span className="bank-tab-name">Words</span>
+          <span className="bank-tab-count">{words.length}</span>
+          <span className="bank-tab-note small">
+            {studied.size} studied · drill by day or part of speech
+          </span>
         </button>
         <button
           type="button"
-          className={`mode-btn ${tab === "grammar" ? "active" : ""}`}
-          aria-pressed={tab === "grammar"}
+          role="tab"
+          className={`bank-tab ${tab === "grammar" ? "active" : ""}`}
+          aria-selected={tab === "grammar"}
           onClick={() => setTab("grammar")}
         >
-          Grammar ({grammar.length})
+          <span className="bank-tab-name">Grammar</span>
+          <span className="bank-tab-count">{grammar.length}</span>
+          <span className="bank-tab-note small">
+            {studiedG.size} studied · translate sentences with each pattern
+          </span>
         </button>
       </div>
 
@@ -267,13 +296,13 @@ export function BankView({
               <h2>Practise grammar</h2>
               <p className="small">
                 {pickedGrammar.size > 0
-                  ? `${pickedGrammarCount} pattern${pickedGrammarCount === 1 ? "" : "s"} ticked from ${pickedGrammar.size} week${pickedGrammar.size === 1 ? "" : "s"}. Set it up below.`
+                  ? `${pickedGrammarCount} sentence${pickedGrammarCount === 1 ? "" : "s"} across ${pickedGrammarPatterns} pattern${pickedGrammarPatterns === 1 ? "" : "s"}. Set it up below.`
                   : "Tick the weeks you want, then set up a run below."}
               </p>
             </div>
             <a className="btn primary" href="#exercise">
               {pickedGrammar.size > 0
-                ? `Practise ${pickedGrammarCount} patterns`
+                ? `Translate ${pickedGrammarCount} sentences`
                 : "Set up practice"}
             </a>
           </div>
@@ -344,16 +373,19 @@ export function BankView({
 
           <Exercise
             kicker="Practice"
-            title="Grammar by week"
-            blurb="Grammar has one grouping worth having: the week it was taught. Check the weeks you want. The full meaning is accepted as well as the short name, so writing out what a pattern does is not marked wrong."
+            title="Translate with the pattern"
+            blurb="An English sentence, and you write the Korean using the pattern it was taught with. Grammar has one grouping worth having — the week it was taught — so the weeks are the whole choice. Spacing and punctuation are ignored."
             options={grammarOptions}
             selected={pickedGrammar}
             onSelectedChange={setPickedGrammar}
             itemsFor={grammarFor}
             kind="grammar"
-            koreanLabel="The pattern"
-            englishLabel="What it means"
-            unit="pattern"
+            koreanLabel="Korean"
+            englishLabel="English"
+            unit="sentence"
+            asSentences
+            outcomeId={grammarOutcomeId}
+            emptyNote="No sentences in those weeks yet."
           />
         </>
       ) : (

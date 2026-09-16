@@ -7,6 +7,7 @@ import { db } from "./index";
 import { corpusVocab, practiceResponses, practiceRuns, users } from "./schema";
 import { deletePracticeRun, recordPracticeRun } from "../lib/practice";
 import { drillPhase, scores } from "../lib/drill-state";
+import { sentenceMatches } from "../lib/quiz";
 
 let failures = 0;
 function expect(label: string, cond: boolean, detail = "") {
@@ -57,6 +58,16 @@ function checkDrillPhases() {
   }
 
   expect("only a first-attempt answer scores", scores([right]) && !scores([wrong, right]));
+
+  // Sentence answers are marked on the words, not on the typing around them:
+  // a student who leaves off the full stop has still translated the sentence.
+  console.log("\ngrammar: marking a translated sentence");
+  const model = "저는 학생이에요.";
+  expect("exact match", sentenceMatches(model, model));
+  expect("a missing full stop still passes", sentenceMatches(model, "저는 학생이에요"));
+  expect("spacing is ignored", sentenceMatches(model, "저는학생이에요."));
+  expect("a different ending is wrong", !sentenceMatches(model, "저는 선생님이에요"));
+  expect("blank is wrong", !sentenceMatches(model, "   "));
 }
 
 async function main() {

@@ -1337,7 +1337,7 @@ html[data-theme="dark"] .floating-btn {
 /* Back-to-top stays out of the way until there is something to go back up to.
    Hidden with opacity rather than display so it can fade and stay focusable
    only when active. */
-.back-to-top.is-hidden {
+.floating-btn.is-hidden {
   opacity: 0;
   pointer-events: none;
   transform: translateY(8px);
@@ -1358,7 +1358,7 @@ html[data-theme="dark"] .theme-btn .when-dark {
   .floating-btn:hover {
     transform: none;
   }
-  .back-to-top.is-hidden {
+  .floating-btn.is-hidden {
     transform: none;
   }
 }
@@ -2295,4 +2295,55 @@ td:hover > .covered {
 }
 .grammar-list .grammar-card {
   margin: 0;
+}
+
+/* --- the two halves of the bank --- */
+
+.bank-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+.bank-tab {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 16px 20px;
+  text-align: left;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.bank-tab:hover {
+  border-color: var(--primary);
+}
+.bank-tab.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #0f172a;
+}
+.bank-tab-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.bank-tab-count {
+  font-size: 1.15rem;
+  font-weight: 800;
+  opacity: 0.6;
+}
+.bank-tab-note {
+  grid-column: 1 / -1;
+  opacity: 0.8;
+}
+
+/* A sentence prompt needs to wrap and sit at a readable size, unlike a word. */
+.prompt.is-sentence {
+  font-size: 1.35rem;
+  line-height: 1.5;
+  text-wrap: pretty;
 }

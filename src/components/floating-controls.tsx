@@ -4,9 +4,30 @@ import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "koreanQuizThemeV2";
 
+/** Anything that reads as a landmark on the page, in document order. */
+const SECTION_SELECTOR = [
+  ".hero",
+  ".section-heading",
+  ".vocab-section",
+  ".dash-card",
+  ".panel",
+  ".exercise-panel",
+  ".practice-cta",
+  ".week-row",
+  ".jump-card",
+].join(",");
+
+/** A hair above the sticky header, so the target is not tucked under it. */
+const HEADER_OFFSET = 76;
+
 /**
- * The two fixed circular controls the design system specifies at the bottom
- * right: back to top, and the light/dark toggle.
+ * The fixed circular controls at the bottom right: step through the page's
+ * sections, and the light/dark toggle.
+ *
+ * Back-to-top was one jump in one direction on pages that are now long lists
+ * of sections — a word bank of a thousand rows, a test of a hundred and fifty
+ * questions. Stepping is what those pages actually need, and holding the up
+ * arrow still gets you to the top.
  *
  * The theme button keeps no React state — the theme lives on
  * `<html data-theme>`, set by the inline script in the layout before first
@@ -26,6 +47,30 @@ export function FloatingControls() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  function step(direction: -1 | 1) {
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? ("auto" as const)
+      : ("smooth" as const);
+
+    const tops = [...document.querySelectorAll<HTMLElement>(SECTION_SELECTOR)]
+      .map((el) => Math.round(el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET))
+      .filter((top) => top >= 0)
+      .sort((a, b) => a - b);
+
+    const here = Math.round(window.scrollY);
+    // A few pixels of slack so a section you are already parked on does not
+    // count as the next one down.
+    const next =
+      direction === 1
+        ? tops.find((top) => top > here + 8)
+        : [...tops].reverse().find((top) => top < here - 8);
+
+    window.scrollTo({
+      top: next ?? (direction === 1 ? document.body.scrollHeight : 0),
+      behavior,
+    });
+  }
+
   function toggleTheme() {
     const root = document.documentElement;
     const next = root.dataset.theme === "dark" ? "light" : "dark";
@@ -40,26 +85,26 @@ export function FloatingControls() {
     <div className="floating-controls">
       <button
         type="button"
-        className={`floating-btn back-to-top ${scrolled ? "" : "is-hidden"}`}
-        onClick={() =>
-          window.scrollTo({
-            top: 0,
-            // Honour the same preference the stylesheet does.
-            behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-              .matches
-              ? "auto"
-              : "smooth",
-          })
-        }
-        aria-label="Back to top"
-        title="Back to top"
+        className={`floating-btn section-nav ${scrolled ? "" : "is-hidden"}`}
+        onClick={() => step(-1)}
+        aria-label="Previous section"
+        title="Previous section"
         tabIndex={scrolled ? 0 : -1}
       >
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path
-            d="M12 5l-7 7h4v7h6v-7h4z"
-            fill="currentColor"
-          />
+          <path d="M12 5l-7 7h4v7h6v-7h4z" fill="currentColor" />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        className="floating-btn section-nav"
+        onClick={() => step(1)}
+        aria-label="Next section"
+        title="Next section"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 19l7-7h-4V5H9v7H5z" fill="currentColor" />
         </svg>
       </button>
 
