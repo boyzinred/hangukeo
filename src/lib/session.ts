@@ -158,10 +158,18 @@ export async function requireStaff(): Promise<Session> {
   return s;
 }
 
-/** Teacher only — accounts, promotion, deletion, class settings. */
-export async function requireTeacher(): Promise<Session> {
+/**
+ * Teacher or admin — who may create, delete and re-credential accounts.
+ *
+ * This is the one teacher power an admin holds directly rather than by viewing
+ * as somebody. Administering accounts is what an admin is *for*; teaching is
+ * not, so the class and test screens still turn them away and are reached by
+ * viewing as a teacher, which leaves the act visible. The split is between
+ * running the roster and running the class.
+ */
+export async function requireAccountAdmin(): Promise<Session> {
   const s = await requireSession();
-  if (!s.isTeacher) redirect("/");
+  if (!s.isTeacher && !s.isAdmin) redirect("/");
   return s;
 }
 

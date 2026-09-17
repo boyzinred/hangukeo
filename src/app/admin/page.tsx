@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { asc, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { teamMembers, teams, users } from "@/db/schema";
@@ -51,6 +52,16 @@ export default async function AdminPage() {
       </section>
 
       <div className="section-body">
+        <div className="teacher-toolbar">
+          <span className="small">
+            Creating accounts, issuing passwords, setting roles and deleting
+            people all live on the roster screen.
+          </span>
+          <Link className="btn secondary" href="/teacher/people">
+            Manage accounts
+          </Link>
+        </div>
+
         <AdminRoster
           people={people.map((p) => ({
             ...p,

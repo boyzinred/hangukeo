@@ -58,7 +58,10 @@ export function NavLinks({
         </>
       )}
 
-      {me.isTeacher && (
+      {/* Administering the roster is a teacher's job and an admin's job. It
+          follows the viewed identity, so an admin reading a student's screen
+          does not carry the link into it. */}
+      {(me.isTeacher || me.isAdmin) && (
         <Link className="header-link" href="/teacher/people">
           People
         </Link>

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { refuseWhileViewing, requireTeacher } from "@/lib/session";
+import { refuseWhileViewing, requireAccountAdmin } from "@/lib/session";
 import {
   accountImpact,
   applyRolesAndTeam,
@@ -35,14 +35,14 @@ export type ActionResult =
 
 /** Offered in the form so the teacher can see the username before committing. */
 export async function proposeUsername(displayName: string): Promise<string> {
-  await requireTeacher();
+  await requireAccountAdmin();
   return availableUsername(displayName);
 }
 
 export async function createStudentAccount(
   formData: FormData,
 ): Promise<ActionResult> {
-  await requireTeacher();
+  await requireAccountAdmin();
   await refuseWhileViewing("Creating an account");
 
   const displayName = String(formData.get("displayName") ?? "").trim();
@@ -78,7 +78,7 @@ export async function createStudentAccount(
 export async function resetUserPassword(
   formData: FormData,
 ): Promise<ActionResult> {
-  const me = await requireTeacher();
+  const me = await requireAccountAdmin();
   await refuseWhileViewing("Resetting a password");
   const userId = String(formData.get("userId") ?? "");
 
@@ -106,7 +106,7 @@ export async function resetUserPassword(
 }
 
 export async function fetchAccountImpact(userId: string) {
-  await requireTeacher();
+  await requireAccountAdmin();
   return accountImpact(userId);
 }
 
@@ -122,7 +122,7 @@ export async function fetchAccountImpact(userId: string) {
 export async function deleteUserAccount(
   formData: FormData,
 ): Promise<ActionResult> {
-  const me = await requireTeacher();
+  const me = await requireAccountAdmin();
   await refuseWhileViewing("Deleting an account");
   const userId = String(formData.get("userId") ?? "");
   const confirmation = String(formData.get("confirm") ?? "").trim();
@@ -139,12 +139,15 @@ export async function deleteUserAccount(
       error: `Type "${row.username}" exactly to confirm.`,
     };
   }
-  if ((row.roles as Role[]).includes("teacher")) {
+  if ((row.roles as Role[]).includes("teacher") && !me.isAdmin) {
     const [{ n }] = await db
       .select({ n: sql<number>`count(*)::int` })
       .from(users)
       .where(sql`'teacher' = any(${users.roles})`);
     if (n <= 1) {
+      // A teacher removing the last teacher locks the class out with nobody
+      // able to undo it. An admin can appoint another, so the guard would only
+      // be in the way of the person whose job this is.
       return {
         ok: false,
         error: "That is the only teacher account — nobody could administer the class.",
@@ -172,7 +175,7 @@ export async function deleteUserAccount(
  * that this action would immediately undo.
  */
 export async function setRoles(formData: FormData): Promise<ActionResult> {
-  const me = await requireTeacher();
+  const me = await requireAccountAdmin();
   await refuseWhileViewing("Changing roles");
   const userId = String(formData.get("userId") ?? "");
   const roles = formData.getAll("roles").map(String) as Role[];

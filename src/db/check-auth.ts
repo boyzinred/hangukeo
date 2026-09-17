@@ -115,6 +115,24 @@ async function main() {
   expect("/bank allowed, without holding the student role", (await get("/bank", ta.cookies)).status === 200);
   expect("/test allowed", (await get("/test", ta.cookies)).status === 200);
 
+  console.log("\nadmin");
+  // db:seed:auth gives every roster row the shared dev password, admin included.
+  const admin = await signIn("admin", DEV_PASSWORD);
+  if (admin.ok) {
+    // Administering the roster is an admin's job; teaching is not.
+    expect("/admin allowed", (await get("/admin", admin.cookies)).status === 200);
+    expect(
+      "/teacher/people allowed — the roster is theirs",
+      (await get("/teacher/people", admin.cookies)).status === 200,
+    );
+    expect(
+      "/teacher/home still blocked — the class is not",
+      (await get("/teacher/home", admin.cookies)).status === 307,
+    );
+  } else {
+    console.log("  skip  no local admin account — npm run user:create -- --name Admin --role admin");
+  }
+
   console.log("\naccount creation");
   const username = `checkuser${Date.now().toString().slice(-5)}`;
   const account = await createAccount({

@@ -126,18 +126,28 @@ async function main() {
     "deleteUserAccount",
     "setRoles",
   ];
-  const source = await import("node:fs").then((fs) =>
-    fs.readFileSync("src/app/teacher/people/actions.ts", "utf8"),
-  );
+  const fs = await import("node:fs");
+  const source = fs.readFileSync("src/app/teacher/people/actions.ts", "utf8");
   for (const fn of guarded) {
     const at = source.indexOf(`export async function ${fn}(`);
     const next = source.indexOf("export async function", at + 10);
     const body = source.slice(at, next === -1 ? undefined : next);
-    expect(
-      `${fn} refuses while viewing`,
-      body.includes("refuseWhileViewing"),
-    );
+    expect(`${fn} refuses while viewing`, body.includes("refuseWhileViewing"));
+    // The roster is the one teacher power an admin holds as themselves.
+    expect(`${fn} is open to an admin`, body.includes("requireAccountAdmin"));
   }
+
+  // ...and the teaching screens are not. An admin reaches those by viewing as
+  // a teacher, which puts the banner up.
+  const teaching = fs.readFileSync("src/app/teacher/tests/actions.ts", "utf8");
+  expect(
+    "publishing a test is still staff-only, not admin",
+    teaching.includes("requireStaff") && !teaching.includes("requireAccountAdmin"),
+  );
+  expect(
+    "an admin is not staff",
+    describeRoles(["admin"]).isStaff === false,
+  );
 
   console.log(failures === 0 ? "\nall passed" : `\n${failures} FAILED`);
   process.exit(failures === 0 ? 0 : 1);

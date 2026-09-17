@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireTeacher } from "@/lib/session";
+import { requireAccountAdmin } from "@/lib/session";
 import { roster, teamList } from "@/lib/roster";
 import { InviteForm } from "./invite-form";
 import { RosterTable } from "./roster-table";
@@ -7,7 +7,7 @@ import { RosterTable } from "./roster-table";
 export const metadata = { title: "People · hangukeo" };
 
 export default async function TeacherPeople() {
-  const me = await requireTeacher();
+  const me = await requireAccountAdmin();
   const [people, teams] = await Promise.all([roster(), teamList()]);
 
   const students = people.filter((p) => p.roles.includes("student"));
@@ -32,8 +32,14 @@ export default async function TeacherPeople() {
             Promoting a student to TA keeps their bank; they stop receiving new
             weekly assignments.
           </span>
-          <Link className="btn secondary" href="/teacher/home">
-            Class progress
+          {/* An admin is turned away from the class screens — they reach
+              those by viewing as a teacher — so pointing them at one would be
+              a link that only ever bounces. */}
+          <Link
+            className="btn secondary"
+            href={me.isTeacher ? "/teacher/home" : "/admin"}
+          >
+            {me.isTeacher ? "Class progress" : "All accounts"}
           </Link>
         </div>
 
