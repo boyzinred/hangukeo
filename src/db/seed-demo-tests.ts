@@ -9,7 +9,13 @@
  * genuine results. Week 3 comes in as a draft, which is what an unpublished
  * test looks like.
  *
- * Local only — it writes attempts for every student on the roster.
+ * It writes attempts for every student on the roster, so against a hosted
+ * database it insists on --apply and says whose results it is about to invent.
+ * Those results are indistinguishable from real ones afterwards, which is fine
+ * for a demonstration and wrong for a class that has started.
+ *
+ *   npm run db:demo:tests
+ *   npm run db:demo:tests:cloud -- --apply
  */
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { existsSync } from "node:fs";
@@ -89,6 +95,35 @@ async function sit(testId: string) {
 }
 
 async function main() {
+  const url = process.env.DATABASE_URL ?? "";
+  const isLocal = url.includes("127.0.0.1") || url.includes("localhost");
+  const apply = process.argv.includes("--apply");
+
+  if (!isLocal) {
+    const students = await db
+      .select({ username: users.username })
+      .from(users)
+      .where(sql`'student' = any(${users.roles})`)
+      .orderBy(asc(users.username));
+
+    console.log(`target: ${new URL(url || "postgres://unset").host}\n`);
+    console.log(
+      `This invents test results for ${students.length} student${students.length === 1 ? "" : "s"}:`,
+    );
+    console.log(`  ${students.map((s) => s.username).join(", ") || "(nobody)"}\n`);
+
+    if (students.length === 0) {
+      console.log(
+        "Nobody on the roster holds the student role, so there is no class to sit it.",
+      );
+    }
+    if (!apply) {
+      console.log("Nothing written — add --apply to go ahead.");
+      process.exit(0);
+    }
+    console.log("Writing.\n");
+  }
+
   console.log("importing authored tests...");
   const ids = new Map<number, string>();
   for (const week of FILES) {

@@ -23,6 +23,8 @@
     "db:seed:demo": "tsx --conditions=react-server --env-file=.env.local src/db/seed-demo.ts",
     "db:demo": "npm run db:seed:demo && npm run db:demo:tests",
     "db:demo:tests": "tsx --conditions=react-server --env-file=.env.local src/db/seed-demo-tests.ts",
+    "db:demo:tests:cloud": "tsx --conditions=react-server --env-file=.env.cloud.local src/db/seed-demo-tests.ts",
+    "test:import:cloud": "tsx --conditions=react-server --env-file=.env.cloud.local src/db/test-import.ts",
     "db:seed:cloud": "tsx --conditions=react-server --env-file=.env.cloud.local src/db/seed-cloud.ts",
     "user:create:cloud": "tsx --conditions=react-server --env-file=.env.cloud.local src/db/create-user.ts",
     "users:prune:cloud": "tsx --conditions=react-server --env-file=.env.cloud.local src/db/prune-users.ts",
