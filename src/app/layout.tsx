@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { FloatingControls } from "@/components/floating-controls";
-import { UserIdentity, UserNav } from "@/components/user-chip";
+import { ModeSwitch, UserIdentity, UserNav } from "@/components/user-chip";
 import { ViewingBanner } from "@/components/viewing-banner";
 
 const outfit = Outfit({
@@ -47,6 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </Link>
               <UserIdentity />
             </div>
+            <ModeSwitch />
             <nav className="header-actions">
               <UserNav />
             </nav>

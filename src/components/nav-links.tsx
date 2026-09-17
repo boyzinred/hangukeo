@@ -70,12 +70,6 @@ export function NavLinks({
         </Link>
       )}
 
-      {bothJobs && inStaffMode && (
-        <Link className="header-link mode-exit" href="/">
-          Leave TA mode
-        </Link>
-      )}
-
       <form action={signOut}>
         <button className="header-link" type="submit">
           Sign out
@@ -93,4 +87,21 @@ export function ModeBadge({ isBoth }: { isBoth: boolean }) {
   const pathname = usePathname();
   if (!isBoth || !pathname.startsWith("/teacher")) return null;
   return <span className="pill pill-ta mode-badge">TA mode</span>;
+}
+
+/**
+ * The way back to their own work, in the middle of the header.
+ *
+ * Not in the link list: there it was one more thing in a row of things, and it
+ * is not a place to go so much as a mode to leave. Centred and in a colour
+ * nothing else in the header uses, it reads as the switch it is.
+ */
+export function ModeExit({ isBoth }: { isBoth: boolean }) {
+  const pathname = usePathname();
+  if (!isBoth || !pathname.startsWith("/teacher")) return null;
+  return (
+    <Link className="mode-exit" href="/">
+      <span aria-hidden="true">&larr;</span> Leave TA mode
+    </Link>
+  );
 }

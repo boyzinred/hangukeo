@@ -1,5 +1,15 @@
 import { currentSession, realSession, viewingAs } from "@/lib/session";
-import { ModeBadge, NavLinks } from "./nav-links";
+import { ModeBadge, ModeExit, NavLinks } from "./nav-links";
+
+/**
+ * The mode switch, sitting between the brand and the links so it is the one
+ * thing in the header that is neither identity nor navigation.
+ */
+export async function ModeSwitch() {
+  const me = await currentSession();
+  if (!me) return null;
+  return <ModeExit isBoth={me.isStaff && me.isStudent} />;
+}
 
 /**
  * Header identity, shown beside the brand. `currentSession` is memoised per

@@ -2480,9 +2480,34 @@ td:hover > .covered {
   background: var(--accent);
   color: #fff;
 }
-.header-link.mode-exit {
-  border: 1px solid currentColor;
-  border-radius: var(--radius-md);
-  padding-left: 10px;
-  padding-right: 10px;
+/* Centred in the header, in a colour nothing else there uses. It is not a
+   place to go, it is a mode to leave, so it sits apart from the links. */
+.mode-exit {
+  flex: 0 1 auto;
+  margin-inline: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: var(--transition);
+}
+.mode-exit:hover,
+.mode-exit:focus-visible {
+  background: var(--accent-soft);
+}
+
+@media (max-width: 720px) {
+  .mode-exit {
+    order: 3;
+    width: 100%;
+    margin-inline: 0;
+    justify-content: center;
+  }
 }
