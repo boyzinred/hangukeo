@@ -324,12 +324,15 @@ export async function attemptResult(studentId: string, attemptId: string) {
     .from(tests)
     .where(eq(tests.id, attempt.testId));
 
-  // Every question, not only the answered ones: looking back at a test means
-  // seeing what was skipped as well as what was wrong.
+  // Every question, not only the answered ones, and the options with them: a
+  // student looking back at a multiple-choice test is asking what they were
+  // offered and which one they took. A bare "correct answer" line says nothing
+  // about the guess they nearly got right.
   const rows = await db
     .select({
       questionId: questions.id,
       prompt: questions.prompt,
+      choices: questions.choices,
       given: responses.answer,
       correct: questions.correctAnswer,
       isCorrect: responses.isCorrect,

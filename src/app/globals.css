@@ -2347,3 +2347,104 @@ td:hover > .covered {
   line-height: 1.5;
   text-wrap: pretty;
 }
+
+/* --- reading a sat test back --- */
+
+.result-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin: 22px 0 10px;
+}
+.result-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+/* The stripe carries the verdict, so it survives being read on a phone with
+   the pill scrolled off, and does not rely on colour alone — the pill says it
+   in words too. */
+.result-q {
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+}
+.result-q.was-right {
+  border-left-color: var(--muted-strong);
+}
+.result-q.was-wrong {
+  border-left-color: var(--accent);
+}
+.result-q.was-skipped {
+  border-left-color: var(--muted-strong);
+  opacity: 0.85;
+}
+.result-q-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.result-q-number {
+  min-width: 2em;
+  font-weight: 800;
+  opacity: 0.6;
+}
+.result-prompt {
+  margin: 8px 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.result-choices {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+.result-choices li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  color: var(--surface-text);
+}
+.result-choices li.is-answer {
+  background: var(--muted);
+  color: #0f172a;
+  font-weight: 700;
+}
+/* A wrong pick is outlined rather than filled: the right answer should still
+   be the thing the eye lands on. */
+.result-choices li.is-mine:not(.is-answer) {
+  background: var(--surface-muted);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+.result-tag {
+  opacity: 0.75;
+  white-space: nowrap;
+}
+.result-typed {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 14px;
+  margin: 0;
+}
+.result-typed dt {
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0.6;
+}
+.result-typed dd {
+  margin: 0;
+}
