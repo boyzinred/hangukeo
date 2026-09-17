@@ -205,6 +205,8 @@ export async function setViewingAs(userId: string | null): Promise<void> {
       httpOnly: true,
       sameSite: "lax",
       path: "/",
+      // Off locally, where there is no HTTPS to send it over.
+      secure: process.env.NODE_ENV === "production",
       // Ends with the browser session: an admin who closes the tab should come
       // back as themselves rather than silently still being somebody else.
       maxAge: undefined,
