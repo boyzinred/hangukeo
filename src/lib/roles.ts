@@ -15,9 +15,17 @@ export type { Role };
  * exception in spirit — it is support access rather than a classroom role, and
  * deliberately does not imply teacher. An admin reaches the teacher screens by
  * viewing as a teacher, which leaves the act visible.
+ *
+ * A TA is a student. Not by the column — plenty of TA rows do not carry the
+ * student role — but by what a TA is: someone further along the same course,
+ * with their own bank to study and their own tests to sit. Reading it off the
+ * column meant a TA-only account signed in to a site with nothing in it, and
+ * fixing that by editing four rows would have left the next TA created from
+ * the command line in the same hole.
  */
 export type RoleFlags = {
   roles: Role[];
+  /** Has their own bank and tests. True for a TA, whose course runs ahead. */
   isStudent: boolean;
   isTa: boolean;
   isTeacher: boolean;
@@ -29,7 +37,7 @@ export type RoleFlags = {
 export function describeRoles(roles: Role[]): RoleFlags {
   return {
     roles,
-    isStudent: roles.includes("student"),
+    isStudent: roles.includes("student") || roles.includes("ta"),
     isTa: roles.includes("ta"),
     isTeacher: roles.includes("teacher"),
     isAdmin: roles.includes("admin"),

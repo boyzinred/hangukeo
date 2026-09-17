@@ -40,7 +40,7 @@ function promptIsKorean(format: string): boolean {
 export default async function TestPreview({
   params,
 }: PageProps<"/teacher/tests/[id]">) {
-  const me = await requireStaff();
+  await requireStaff();
   const { id } = await params;
 
   const [test, audit] = await Promise.all([testDetail(id), auditTest(id).catch(() => null)]);
@@ -104,7 +104,6 @@ export default async function TestPreview({
           testId={test.id}
           status={test.status}
           attemptCount={test.attemptCount}
-          canPublish={me.isTeacher}
           blocked={errors.length > 0}
         />
 

@@ -110,6 +110,10 @@ async function main() {
   const ta = await signIn("eunji", DEV_PASSWORD);
   expect("/teacher/home allowed", (await get("/teacher/home", ta.cookies)).status === 200);
   expect("/teacher/people blocked (teacher only)", (await get("/teacher/people", ta.cookies)).status === 307);
+  // A TA is a student further along the same course, so their own screens are
+  // theirs as well — even on an account that carries only the ta role.
+  expect("/bank allowed, without holding the student role", (await get("/bank", ta.cookies)).status === 200);
+  expect("/test allowed", (await get("/test", ta.cookies)).status === 200);
 
   console.log("\naccount creation");
   const username = `checkuser${Date.now().toString().slice(-5)}`;

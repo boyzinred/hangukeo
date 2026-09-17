@@ -68,6 +68,15 @@ async function main() {
     describeRoles(["student", "admin"]).isStudent === true &&
       describeRoles(["student", "admin"]).isAdmin === true,
   );
+  // A TA is further along the same course, so they keep a student's screens.
+  expect(
+    "a TA is a student too",
+    describeRoles(["ta"]).isStudent === true && describeRoles(["ta"]).isStaff === true,
+  );
+  expect(
+    "but an admin is not",
+    describeRoles(["admin"]).isStudent === false,
+  );
 
   console.log("\nwho the cookie works for");
   const target = "some-other-user-id";

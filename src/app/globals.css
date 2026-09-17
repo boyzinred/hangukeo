@@ -2448,3 +2448,41 @@ td:hover > .covered {
 .result-typed dd {
   margin: 0;
 }
+
+/* --- TA mode --- */
+
+.ta-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 18px 22px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--secondary);
+  background: var(--surface-muted);
+  color: var(--surface-text);
+}
+.ta-banner h2 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.ta-banner p {
+  margin: 0;
+  max-width: 62ch;
+}
+
+/* Beside the name, not in the nav: it answers "where am I", which is a
+   question about the person rather than about where to go next. */
+.mode-badge {
+  background: var(--accent);
+  color: #fff;
+}
+.header-link.mode-exit {
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  padding-left: 10px;
+  padding-right: 10px;
+}

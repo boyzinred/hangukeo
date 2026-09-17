@@ -96,6 +96,10 @@ async function main() {
   expect("can sign in", s.ok);
   expect("reaches /bank as a student", (await get("/bank", s.cookies)) === 200);
   expect("reaches /teacher/home as a TA", (await get("/teacher/home", s.cookies)) === 200);
+  expect("and the tests screen", (await get("/teacher/tests", s.cookies)) === 200);
+  expect("and the grading queue", (await get("/teacher/review", s.cookies)) === 200);
+  // The one line a TA does not cross: who is in the class.
+  expect("but not the roster", (await get("/teacher/people", s.cookies)) === 307);
   expect(
     "still blocked from /teacher/people",
     (await get("/teacher/people", s.cookies)) === 307,

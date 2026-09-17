@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { signOut } from "@/app/auth/actions";
 import { currentSession, realSession, viewingAs } from "@/lib/session";
+import { ModeBadge, NavLinks } from "./nav-links";
 
 /**
  * Header identity, shown beside the brand. `currentSession` is memoised per
@@ -27,6 +26,7 @@ export async function UserIdentity() {
             {r}
           </span>
         ))}
+        <ModeBadge isBoth={me.isStaff && me.isStudent} />
       </span>
     </span>
   );
@@ -51,47 +51,11 @@ export async function UserNav() {
 
   if (!me) {
     return (
-      <Link className="header-link" href="/login">
+      <a className="header-link" href="/login">
         Sign in
-      </Link>
+      </a>
     );
   }
 
-  return (
-    <>
-      {me.isStudent && (
-        <>
-          <Link className="header-link" href="/">
-            Home
-          </Link>
-          <Link className="header-link" href="/bank">
-            Bank
-          </Link>
-          <Link className="header-link" href="/test">
-            Tests
-          </Link>
-        </>
-      )}
-      {me.isStaff && (
-        <>
-          <Link className="header-link" href="/teacher/home">
-            Class
-          </Link>
-          <Link className="header-link" href="/teacher/tests">
-            Tests
-          </Link>
-        </>
-      )}
-      {real?.isAdmin && (
-        <Link className="header-link" href="/admin">
-          Admin
-        </Link>
-      )}
-      <form action={signOut}>
-        <button className="header-link" type="submit">
-          Sign out
-        </button>
-      </form>
-    </>
-  );
+  return <NavLinks me={me} isAdmin={real?.isAdmin ?? false} />;
 }

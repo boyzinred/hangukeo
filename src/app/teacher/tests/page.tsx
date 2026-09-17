@@ -77,9 +77,8 @@ export default async function TeacherTests() {
       <div className="section-body">
         <div className="teacher-toolbar">
           <span className="small">
-            {me.isTeacher
-              ? "Open a week to read the whole test, then publish it. Students see nothing until you do."
-              : "You can read any test. Publishing is the teacher's decision."}
+            Open a week to read the whole test, then publish it. Students see
+            nothing until you do.
           </span>
           <Link className="btn secondary" href="/teacher/home">
             Class progress
@@ -133,7 +132,7 @@ export default async function TeacherTests() {
                         className="btn primary compact"
                         href={`/teacher/tests/${w.testId}`}
                       >
-                        {me.isTeacher && (w.status === "draft" || w.status === "review")
+                        {w.status === "draft" || w.status === "review"
                           ? "Read and publish"
                           : "Read the test"}
                       </Link>

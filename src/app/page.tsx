@@ -24,6 +24,8 @@ export default async function Home() {
   const week = weekNumberFor(new Date(), s.termStart, totalWeeks);
 
   if (!me) return <SignedOut week={week} totalWeeks={totalWeeks} settings={s} />;
+  // Only a teacher or an admin lands here now: a TA is a student and gets the
+  // dashboard, with the way across to the class at the top of it.
   if (!me.isStudent) return <StaffLanding displayName={me.displayName} isAdmin={me.isAdmin} />;
 
   const d = await studentDashboard(me.userId, week);
@@ -45,6 +47,8 @@ export default async function Home() {
       </section>
 
       <div className="section-body">
+        {me.isStaff && <TaBanner />}
+
         <div className="dash-grid">
           <NextUp d={d} week={week} />
           <ThisWeek d={d} />
@@ -53,6 +57,30 @@ export default async function Home() {
         </div>
       </div>
     </main>
+  );
+}
+
+/**
+ * The way across to the other job.
+ *
+ * At the top of their own dashboard rather than in the nav, because a TA is a
+ * student first: they come here to see their own week, and helping run the
+ * class is the thing they step into deliberately.
+ */
+function TaBanner() {
+  return (
+    <aside className="ta-banner">
+      <div>
+        <h2>You also help run this class</h2>
+        <p className="small">
+          Read how everyone is doing, publish the week&rsquo;s test, and settle
+          answers the grader could not. Your own work stays where it is.
+        </p>
+      </div>
+      <Link className="btn primary" href="/teacher/home">
+        Go to TA mode
+      </Link>
+    </aside>
   );
 }
 

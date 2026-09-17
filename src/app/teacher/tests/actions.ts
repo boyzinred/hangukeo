@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { attempts, tests } from "@/db/schema";
-import { requireStaff, requireTeacher } from "@/lib/session";
+import { requireStaff } from "@/lib/session";
 import { auditTest } from "@/lib/test-import";
 import { deleteTest, setTestStatus } from "@/lib/tests";
 
@@ -13,9 +13,14 @@ export type TestActionResult =
   | { ok: false; error: string };
 
 /**
- * Publishing is the teacher's decision; a TA reviews but does not decide what
- * the class sits. Each action re-checks, since a Server Action is reachable by
- * direct POST regardless of who the page rendered for.
+ * Teaching staff — teacher or TA — move a test through its lifecycle. A TA is
+ * running the same class a week behind the teacher, and making them wait for
+ * someone else to press Publish on a test they have just read is the kind of
+ * gate that gets worked around rather than followed. Accounts and roles stay
+ * teacher-only; those are about who is in the class, not about running it.
+ *
+ * Each action re-checks, since a Server Action is reachable by direct POST
+ * regardless of who the page rendered for.
  *
  * Nothing here creates a test. Tests are written as files and imported with
  * `npm run test:import`; these actions move one through its lifecycle.
@@ -39,7 +44,7 @@ async function attemptCount(testId: string): Promise<number> {
  * feeding studied, verified or retention.
  */
 export async function publishTest(testId: string): Promise<TestActionResult> {
-  const me = await requireTeacher();
+  const me = await requireStaff();
 
   const audit = await auditTest(testId);
   if (!audit.ok) {
@@ -58,7 +63,7 @@ export async function publishTest(testId: string): Promise<TestActionResult> {
 }
 
 export async function unpublishTest(testId: string): Promise<TestActionResult> {
-  await requireTeacher();
+  await requireStaff();
 
   // Pulling a test out from under someone mid-sitting would strand their
   // attempt, so this only works before anyone has started.
@@ -86,7 +91,7 @@ export async function unpublishTest(testId: string): Promise<TestActionResult> {
  * keeps the results readable in history while ending new attempts.
  */
 export async function closeTest(testId: string): Promise<TestActionResult> {
-  await requireTeacher();
+  await requireStaff();
   await setTestStatus(testId, "closed");
   revalidatePath("/teacher/tests");
   revalidatePath(`/teacher/tests/${testId}`);
@@ -98,7 +103,7 @@ export async function closeTest(testId: string): Promise<TestActionResult> {
 }
 
 export async function discardTest(testId: string): Promise<TestActionResult> {
-  await requireTeacher();
+  await requireStaff();
 
   const n = await attemptCount(testId);
   if (n > 0) {
