@@ -91,11 +91,13 @@ export async function resetUserPassword(
       return { ok: false, error: "Use a second teacher account to reset your own password." };
     }
 
-    const password = await resetPassword(userId);
+    const { password, created } = await resetPassword(userId);
     revalidatePath("/teacher/people");
     return {
       ok: true,
-      message: `New password for ${row.displayName}.`,
+      message: created
+        ? `Sign-in account created for ${row.displayName}.`
+        : `New password for ${row.displayName}.`,
       credential: { username: row.username, password },
     };
   } catch (e) {

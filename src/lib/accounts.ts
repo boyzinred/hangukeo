@@ -72,6 +72,19 @@ export function assertAdminEnv(): { apiUrl: string; key: string } {
     );
   }
 
+  // The dashboard shows the project URL beside REST and GraphQL endpoints
+  // built on top of it, and the wrong one is a plausible copy. Supabase
+  // answers the resulting request with "Invalid path specified in request
+  // URL", which names neither the value nor the file it came from.
+  const path = apiUrl.replace(/^https?:\/\/[^/]+/, "").replace(/\/+$/, "");
+  if (path) {
+    throw new Error(
+      `NEXT_PUBLIC_SUPABASE_URL should be the project URL with no path, but it ends in "${path}". ` +
+        `Use ${apiUrl.match(/^https?:\/\/[^/]+/)?.[0] ?? "https://<project-ref>.supabase.co"} — ` +
+        "the REST and GraphQL endpoints shown next to it on the same dashboard page are built from it, not used directly.",
+    );
+  }
+
   const dbRef = projectRef(process.env.DATABASE_URL);
   const apiRef = projectRef(apiUrl);
   if (dbRef && apiRef && dbRef !== apiRef) {
@@ -186,17 +199,54 @@ export async function createAccount(input: {
 }
 
 /** Issues a fresh password. The old one stops working immediately. */
-export async function resetPassword(userId: string): Promise<string> {
+/**
+ * Issues a password, creating the sign-in account if the person has never had
+ * one.
+ *
+ * A roster row can exist without an auth user: the seed writes the roster and
+ * leaves sign-in accounts to be issued, and an interrupted `createAccount`
+ * leaves the same shape behind. This used to refuse those rows outright, which
+ * left them stranded — the teacher could not give them a password, and could
+ * not create them again either, because the username was taken by the row
+ * standing in the way.
+ *
+ * Whether it created or reset is returned rather than inferred, so the screen
+ * can say which happened. Telling someone their password was "reset" when they
+ * never had one is a small lie that makes them look for an older email.
+ */
+export async function resetPassword(
+  userId: string,
+): Promise<{ password: string; created: boolean }> {
   const [row] = await db.select().from(users).where(eq(users.id, userId));
   if (!row) throw new Error("No such person.");
-  if (!row.authId) throw new Error(`${row.displayName} has no sign-in account.`);
 
   const password = generatePassword();
-  const { error } = await adminClient().auth.admin.updateUserById(row.authId, {
+  const admin = adminClient();
+
+  if (!row.authId) {
+    const { data, error } = await admin.auth.admin.createUser({
+      email: row.email,
+      password,
+      email_confirm: true,
+      user_metadata: { username: row.username, display_name: row.displayName },
+    });
+    if (error || !data.user) {
+      throw new Error(
+        `Could not create the sign-in account: ${error?.message ?? "no user returned"}`,
+      );
+    }
+    await db
+      .update(users)
+      .set({ authId: data.user.id })
+      .where(eq(users.id, userId));
+    return { password, created: true };
+  }
+
+  const { error } = await admin.auth.admin.updateUserById(row.authId, {
     password,
   });
   if (error) throw new Error(`Could not reset the password: ${error.message}`);
-  return password;
+  return { password, created: false };
 }
 
 /**

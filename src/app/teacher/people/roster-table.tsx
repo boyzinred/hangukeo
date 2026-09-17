@@ -230,7 +230,7 @@ function RosterRowView({
             aria-expanded={isOpen("credential")}
             onClick={onReset}
           >
-            Reset password
+            {p.lastSignInAt ? "Reset password" : "Issue password"}
           </button>
           <button
             type="button"
