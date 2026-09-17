@@ -19,10 +19,75 @@ import {
  * that the caller is the teacher before delegating to these.
  */
 
-function adminClient() {
+/**
+ * Which Supabase project a URL belongs to.
+ *
+ * A hosted database URL carries the project ref in the username —
+ * `postgres.abcdefgh@aws-0-….pooler.supabase.com` — and the API URL carries it
+ * as the subdomain of `https://abcdefgh.supabase.co`. Local is its own answer.
+ * Returns null when it cannot tell, which is treated as "do not object".
+ */
+function projectRef(url: string | undefined): string | null {
+  if (!url) return null;
+  if (url.includes("127.0.0.1") || url.includes("localhost")) return "local";
+  const fromUsername = url.match(/\/\/postgres\.([a-z0-9]+):/i)?.[1];
+  if (fromUsername) return fromUsername.toLowerCase();
+  const fromHost = url.match(/\/\/([a-z0-9]+)\.supabase\.(co|in)/i)?.[1];
+  return fromHost ? fromHost.toLowerCase() : null;
+}
+
+/**
+ * The service-key client, checked against the database it will be paired with.
+ *
+ * An account is two writes to two systems: the auth user goes to Supabase Auth
+ * and the roster row goes to Postgres. If the two env vars name different
+ * projects — the easiest mistake to make when a cloud env file inherits half
+ * its values from the shell — both writes succeed and the account is broken in
+ * a way nothing later complains about: the person can sign in and the app
+ * cannot find them, or the roster shows someone who has no way in.
+ */
+/**
+ * Checks the environment can create accounts, before anything is attempted.
+ *
+ * Exported so a command-line entry point can call it first: finding out that
+ * the service key is missing *after* a database round trip means the error
+ * arrives as a failed query about something else entirely.
+ */
+export function assertAdminEnv(): { apiUrl: string; key: string } {
   const key = process.env.SUPABASE_SECRET_KEY;
-  if (!key) throw new Error("SUPABASE_SECRET_KEY is not set");
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
+  const apiUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+  if (!key) {
+    throw new Error(
+      "SUPABASE_SECRET_KEY is not set. It belongs in the same env file as the " +
+        "DATABASE_URL you are targeting — Supabase dashboard → Project Settings " +
+        "→ API keys → service_role.",
+    );
+  }
+  if (!apiUrl) {
+    throw new Error(
+      "NEXT_PUBLIC_SUPABASE_URL is not set. It belongs in the same env file as " +
+        "the DATABASE_URL you are targeting — Supabase dashboard → Project " +
+        "Settings → Data API → Project URL.",
+    );
+  }
+
+  const dbRef = projectRef(process.env.DATABASE_URL);
+  const apiRef = projectRef(apiUrl);
+  if (dbRef && apiRef && dbRef !== apiRef) {
+    throw new Error(
+      `Refusing to act: the database is project "${dbRef}" and the Supabase API ` +
+        `is project "${apiRef}". The sign-in account and the roster row would be ` +
+        "created on different projects, which nothing later would flag.",
+    );
+  }
+
+  return { apiUrl, key };
+}
+
+function adminClient() {
+  const { apiUrl, key } = assertAdminEnv();
+  return createClient(apiUrl, key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }

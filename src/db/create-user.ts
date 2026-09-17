@@ -15,7 +15,7 @@
 import { asc, eq, sql } from "drizzle-orm";
 import { db } from "./index";
 import { roleEnum, teams, users, type Role } from "./schema";
-import { availableUsername, createAccount } from "../lib/accounts";
+import { assertAdminEnv, availableUsername, createAccount } from "../lib/accounts";
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
@@ -23,6 +23,10 @@ function arg(name: string): string | undefined {
 }
 
 async function main() {
+  // Before touching the database: a missing service key should say so, not
+  // arrive later disguised as a failed query.
+  assertAdminEnv();
+
   const displayName = arg("name");
   const roles = (arg("roles") ?? arg("role") ?? "student")
     .split(",")
